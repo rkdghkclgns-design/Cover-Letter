@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cover Letter Builder</title>
+  <title>Cover Letter & Resume Builder</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -11,10 +11,7 @@
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.4/dist/purify.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
-  <!-- Progress Bar -->
-  <div class="progress-bar">
-    <div class="progress-fill" id="progress-fill"></div>
-  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
 
   <!-- Header -->
   <header class="header">
@@ -22,219 +19,262 @@
       <div class="logo">
         <div class="logo-icon">CL</div>
         <div>
-          <h1>Cover Letter Builder</h1>
-          <p class="tagline">EMM 마인드맵에서 자기소개서로, 한 번에</p>
+          <h1>Cover Letter & Resume Builder</h1>
+          <p class="tagline">EMM 마인드맵에서 자기소개서 & 이력서로</p>
         </div>
       </div>
       <nav class="steps-nav" id="steps-nav">
-        <button class="nav-step active" data-step="1">
-          <span class="nav-num">1</span>
-          <span class="nav-label">업로드</span>
-        </button>
+        <button class="nav-step active" data-step="1"><span class="nav-num">1</span><span class="nav-label">업로드</span></button>
         <div class="nav-line"></div>
-        <button class="nav-step" data-step="2">
-          <span class="nav-num">2</span>
-          <span class="nav-label">매핑</span>
-        </button>
+        <button class="nav-step" data-step="2"><span class="nav-num">2</span><span class="nav-label">설정</span></button>
         <div class="nav-line"></div>
-        <button class="nav-step" data-step="3">
-          <span class="nav-num">3</span>
-          <span class="nav-label">편집</span>
-        </button>
+        <button class="nav-step" data-step="3"><span class="nav-num">3</span><span class="nav-label">편집</span></button>
       </nav>
+    </div>
+    <!-- Main Tabs -->
+    <div class="main-tabs-bar">
+      <div class="main-tabs" id="main-tabs">
+        <button class="main-tab active" data-tab="cover-letter">자기소개서</button>
+        <button class="main-tab" data-tab="resume">이력서</button>
+        <div class="main-tab-indicator" id="tab-indicator"></div>
+      </div>
     </div>
   </header>
 
   <main class="main">
-    <!-- ============ Step 1: Upload ============ -->
-    <section id="step-upload" class="step active">
-      <div class="step-grid two-col">
-        <!-- Left: Upload -->
-        <div class="card card-upload">
-          <div class="card-label">파일 선택</div>
-          <div class="upload-area" id="drop-zone">
-            <div class="upload-ring">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="17 8 12 3 7 8"/>
-                <line x1="12" y1="3" x2="12" y2="15"/>
-              </svg>
-            </div>
-            <p class="upload-title">EMM 파일을 드래그하거나 클릭</p>
-            <p class="upload-sub">.emm .mm .xml 지원</p>
-            <input type="file" id="file-input" accept=".emm,.mm,.xml" hidden>
-          </div>
-          <div id="file-info" class="file-info hidden">
-            <div class="file-chip">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-              <span id="file-name"></span>
-              <button id="remove-file" class="chip-close" title="제거">&times;</button>
-            </div>
-          </div>
-          <div class="divider-text"><span>또는</span></div>
-          <button id="load-demo" class="btn btn-ghost btn-full">데모 데이터로 시작하기</button>
-        </div>
+    <!-- ============================== -->
+    <!-- ===== 자기소개서 탭 ===== -->
+    <!-- ============================== -->
+    <div id="cover-letter-content" class="tab-content active">
 
-        <!-- Right: Guide -->
-        <div class="card card-guide">
-          <div class="card-label">작성 가이드</div>
-          <h2 class="guide-title">두괄식 자기소개서란?</h2>
-          <p class="guide-desc">결론을 먼저 제시하고, 근거를 뒤에 배치하는 작성법입니다. 채용담당자가 핵심을 즉시 파악할 수 있어 합격률이 높습니다.</p>
-          <div class="guide-cards">
-            <div class="mini-card">
-              <div class="mini-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+      <!-- CL Step 1 -->
+      <section id="cl-step-upload" class="step active">
+        <div class="step-grid two-col">
+          <div class="card card-upload">
+            <div class="card-label">파일 선택</div>
+            <div class="upload-area" id="cl-drop-zone">
+              <div class="upload-ring">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
               </div>
-              <div>
-                <strong>STAR 기법</strong>
-                <p>상황 - 행동 - 결과 - 배움</p>
-              </div>
+              <p class="upload-title">EMM 파일을 드래그하거나 클릭</p>
+              <p class="upload-sub">.emm .mm .xml 지원</p>
+              <input type="file" id="cl-file-input" accept=".emm,.mm,.xml" hidden>
             </div>
-            <div class="mini-card">
-              <div class="mini-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>
-              </div>
-              <div>
-                <strong>경험이 없어도 OK</strong>
-                <p>알바, 동아리, 학업, 일상 모두 소재</p>
-              </div>
+            <div id="cl-file-info" class="file-info hidden">
+              <div class="file-chip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span id="cl-file-name"></span><button id="cl-remove-file" class="chip-close">&times;</button></div>
             </div>
-            <div class="mini-card">
-              <div class="mini-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              </div>
-              <div>
-                <strong>진정성 우선</strong>
-                <p>스펙보다 배운 점에 집중</p>
-              </div>
+            <div class="divider-text"><span>또는</span></div>
+            <button id="cl-load-demo" class="btn btn-ghost btn-full">데모 데이터로 시작하기</button>
+          </div>
+          <div class="card card-guide">
+            <div class="card-label">작성 가이드</div>
+            <h2 class="guide-title">두괄식 자기소개서란?</h2>
+            <p class="guide-desc">결론을 먼저 제시하고, 근거를 뒤에 배치하는 작성법입니다.</p>
+            <div class="guide-cards">
+              <div class="mini-card"><div class="mini-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div><div><strong>STAR 기법</strong><p>상황 - 행동 - 결과 - 배움</p></div></div>
+              <div class="mini-card"><div class="mini-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg></div><div><strong>경험이 없어도 OK</strong><p>알바, 동아리, 학업, 일상 모두 소재</p></div></div>
+              <div class="mini-card"><div class="mini-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div><strong>진정성 우선</strong><p>스펙보다 배운 점에 집중</p></div></div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- ============ Step 2: Mapping ============ -->
-    <section id="step-mapping" class="step hidden">
-      <div class="step-grid two-col">
-        <!-- Left: Tree -->
-        <div class="card">
-          <div class="card-label">마인드맵 구조</div>
-          <div id="tree-view" class="tree-view"></div>
+      <!-- CL Step 2 -->
+      <section id="cl-step-mapping" class="step hidden">
+        <div class="step-grid two-col">
+          <div class="card">
+            <div class="card-label">마인드맵 구조</div>
+            <div id="cl-tree-view" class="tree-view"></div>
+          </div>
+          <div class="card">
+            <div class="card-label">섹션 매핑</div>
+            <p class="hint">브랜치를 자기소개서 섹션에 연결하세요.</p>
+            <div id="cl-mapping-list" class="mapping-list"></div>
+            <div class="add-section-row">
+              <input type="text" id="cl-custom-section-input" class="add-section-input" placeholder="커스텀 섹션명 입력">
+              <button id="cl-btn-add-section" class="btn btn-ghost btn-sm">+ 추가</button>
+            </div>
+            <div class="config-block">
+              <div class="card-label" style="margin-bottom:.75rem">지원 정보</div>
+              <div class="field-row">
+                <div class="field"><label>회사명</label><input type="text" id="cl-company" placeholder="예: 넥슨"></div>
+                <div class="field"><label>지원 직무</label><input type="text" id="cl-position" placeholder="예: 게임 프로그래머"></div>
+              </div>
+            </div>
+            <div class="config-block">
+              <div class="card-label" style="margin-bottom:.5rem">AI 생성 <span class="badge badge-ai">Gemini</span></div>
+              <p class="field-hint" style="margin-top:0">Gemini AI가 두괄식 + STAR 기법으로 자기소개서를 작성합니다.</p>
+            </div>
+            <details class="exp-helper"><summary>경험이 부족하다면? 소재 찾기 도우미</summary><div class="exp-helper-body"><div class="exp-category"><strong>아르바이트</strong><p>고객 응대, 문제 해결, 시간 관리</p></div><div class="exp-category"><strong>동아리/학회</strong><p>팀워크, 토론, 기획력, 리더십</p></div><div class="exp-category"><strong>학업/프로젝트</strong><p>과제 수행, 발표, 끈기 있는 노력</p></div><div class="exp-category"><strong>일상/취미</strong><p>여행, 봉사, 자기개발, 도전</p></div></div></details>
+            <div class="step-actions">
+              <button id="cl-btn-back" class="btn btn-ghost">이전</button>
+              <button id="cl-btn-generate" class="btn btn-primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span id="cl-btn-gen-text">AI 자기소개서 생성</span></button>
+            </div>
+          </div>
         </div>
-        <!-- Right: Config -->
-        <div class="card">
-          <div class="card-label">섹션 매핑</div>
-          <p class="hint">브랜치를 자기소개서 섹션에 연결하세요. 자동 추천이 적용되어 있습니다.</p>
-          <div id="mapping-list" class="mapping-list"></div>
-          <div class="add-section-row">
-            <input type="text" id="custom-section-input" class="add-section-input" placeholder="커스텀 섹션명 입력 (예: 프로젝트 경험)">
-            <button id="btn-add-section" class="btn btn-ghost btn-sm">+ 섹션 추가</button>
-          </div>
+      </section>
 
-          <div class="config-block">
-            <div class="card-label" style="margin-bottom:.75rem">지원 정보</div>
-            <div class="field-row">
-              <div class="field">
-                <label for="company-name">회사명</label>
-                <input type="text" id="company-name" placeholder="예: 넥슨">
+      <!-- CL Step 3 -->
+      <section id="cl-step-editor" class="step hidden">
+        <div class="editor-header">
+          <div class="mode-tabs">
+            <button class="tab active" data-mode="preview" data-ctx="cl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 미리보기</button>
+            <button class="tab" data-mode="edit" data-ctx="cl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> 편집</button>
+            <button class="tab" data-mode="split" data-ctx="cl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg> 분할</button>
+          </div>
+          <div class="editor-actions">
+            <button id="cl-btn-copy" class="btn btn-ghost btn-sm">복사</button>
+            <button id="cl-btn-download" class="btn btn-primary btn-sm"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> MD 다운로드</button>
+          </div>
+        </div>
+        <div class="editor-container" id="cl-editor-container" data-mode="preview">
+          <div class="editor-pane"><textarea id="cl-md-editor" spellcheck="false"></textarea></div>
+          <div class="preview-pane"><div id="cl-md-preview" class="markdown-body"></div></div>
+        </div>
+        <div class="step-actions" style="margin-top:1rem">
+          <button id="cl-btn-back-mapping" class="btn btn-ghost">섹션 매핑으로</button>
+          <button id="cl-btn-regenerate" class="btn btn-ghost">다시 생성</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============================== -->
+    <!-- ======= 이력서 탭 ======= -->
+    <!-- ============================== -->
+    <div id="resume-content" class="tab-content">
+
+      <!-- RS Step 1 -->
+      <section id="rs-step-upload" class="step active">
+        <div class="step-grid two-col">
+          <div class="card card-upload">
+            <div class="card-label">파일 선택</div>
+            <div class="upload-area" id="rs-drop-zone">
+              <div class="upload-ring">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
               </div>
-              <div class="field">
-                <label for="position-name">지원 직무</label>
-                <input type="text" id="position-name" placeholder="예: 게임 프로그래머">
-              </div>
+              <p class="upload-title">EMM 파일을 드래그하거나 클릭</p>
+              <p class="upload-sub">.emm .mm .xml 지원</p>
+              <input type="file" id="rs-file-input" accept=".emm,.mm,.xml" hidden>
+            </div>
+            <div id="rs-file-info" class="file-info hidden">
+              <div class="file-chip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span id="rs-file-name"></span><button id="rs-remove-file" class="chip-close">&times;</button></div>
+            </div>
+            <div class="divider-text"><span>또는</span></div>
+            <button id="rs-load-demo" class="btn btn-ghost btn-full">데모 데이터로 시작하기</button>
+          </div>
+          <div class="card card-guide" style="background:linear-gradient(145deg,#f0fdf4,#ecfdf5,#eff6ff)">
+            <div class="card-label" style="color:#059669">이력서 가이드</div>
+            <h2 class="guide-title">EMM으로 이력서 만들기</h2>
+            <p class="guide-desc">마인드맵으로 정리한 경력/학력/프로젝트를 이력서로 변환합니다. EMM에 없는 정보는 직접 입력할 수 있습니다.</p>
+            <div class="guide-cards">
+              <div class="mini-card"><div class="mini-icon" style="background:#d1fae5;color:#059669"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></div><div><strong>3가지 레이아웃</strong><p>클래식, 모던, 미니멀 선택</p></div></div>
+              <div class="mini-card"><div class="mini-icon" style="background:#d1fae5;color:#059669"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div><strong>AI 레이아웃 추천</strong><p>데이터 기반 최적 배치</p></div></div>
+              <div class="mini-card"><div class="mini-icon" style="background:#d1fae5;color:#059669"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><strong>MD + HTML 다운로드</strong><p>인쇄 가능한 이력서</p></div></div>
             </div>
           </div>
+        </div>
+      </section>
 
-          <!-- AI 생성 안내 -->
-          <div class="config-block">
-            <div class="card-label" style="margin-bottom:.5rem">
-              AI 생성 <span class="badge badge-ai">Gemini</span>
-            </div>
-            <p class="field-hint" style="margin-top:0">Gemini AI가 두괄식 + STAR 기법으로 자기소개서를 작성합니다.</p>
+      <!-- RS Step 2 -->
+      <section id="rs-step-mapping" class="step hidden">
+        <div class="step-grid two-col">
+          <div class="card">
+            <div class="card-label">마인드맵 구조</div>
+            <div id="rs-tree-view" class="tree-view"></div>
           </div>
-
-          <!-- Experience Helper -->
-          <details class="exp-helper">
-            <summary>경험이 부족하다면? 소재 찾기 도우미</summary>
-            <div class="exp-helper-body">
-              <div class="exp-category" data-cat="parttime">
-                <strong>아르바이트</strong>
-                <p>고객 응대, 문제 해결, 시간 관리, 팀 협업 경험</p>
-              </div>
-              <div class="exp-category" data-cat="club">
-                <strong>동아리/학회</strong>
-                <p>팀워크, 토론, 기획력, 리더십, 갈등 조율</p>
-              </div>
-              <div class="exp-category" data-cat="academic">
-                <strong>학업/프로젝트</strong>
-                <p>과제 수행, 발표, 중재 역할, 끈기 있는 노력</p>
-              </div>
-              <div class="exp-category" data-cat="daily">
-                <strong>일상/취미</strong>
-                <p>여행, 봉사, 자기개발, 도전, 적응력</p>
-              </div>
+          <div class="card">
+            <div class="card-label">섹션 매핑</div>
+            <p class="hint">브랜치를 이력서 섹션에 연결하세요.</p>
+            <div id="rs-mapping-list" class="mapping-list"></div>
+            <div class="add-section-row">
+              <input type="text" id="rs-custom-section-input" class="add-section-input" placeholder="커스텀 섹션명 입력">
+              <button id="rs-btn-add-section" class="btn btn-ghost btn-sm">+ 추가</button>
             </div>
-          </details>
 
-          <div class="step-actions">
-            <button id="btn-back-upload" class="btn btn-ghost">이전</button>
-            <button id="btn-generate" class="btn btn-primary">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-              <span id="btn-generate-text">자기소개서 생성</span>
+            <!-- 직접 입력 필드 -->
+            <div class="config-block">
+              <div class="card-label" style="margin-bottom:.75rem">인적사항 (직접 입력)</div>
+              <div class="field-row"><div class="field"><label>이름</label><input type="text" id="rs-name" placeholder="홍길동"></div><div class="field"><label>생년월일</label><input type="text" id="rs-birth" placeholder="1998.01.01"></div></div>
+              <div class="field-row" style="margin-top:.5rem"><div class="field"><label>연락처</label><input type="text" id="rs-phone" placeholder="010-0000-0000"></div><div class="field"><label>이메일</label><input type="email" id="rs-email" placeholder="example@email.com"></div></div>
+              <div class="field" style="margin-top:.5rem"><label>주소</label><input type="text" id="rs-address" placeholder="서울시 강남구"></div>
+            </div>
+            <div class="config-block">
+              <div class="card-label" style="margin-bottom:.75rem">학력 (직접 입력)</div>
+              <div class="field-row"><div class="field"><label>학교명</label><input type="text" id="rs-school" placeholder="OO대학교"></div><div class="field"><label>전공</label><input type="text" id="rs-major" placeholder="컴퓨터공학"></div></div>
+              <div class="field-row" style="margin-top:.5rem"><div class="field"><label>기간</label><input type="text" id="rs-edu-period" placeholder="2018.03 ~ 2024.02"></div><div class="field"><label>학점</label><input type="text" id="rs-gpa" placeholder="3.8 / 4.5"></div></div>
+            </div>
+            <div class="config-block">
+              <div class="card-label" style="margin-bottom:.75rem">기술스택</div>
+              <div class="field"><label>기술 (쉼표로 구분)</label><input type="text" id="rs-tech" placeholder="Python, JavaScript, React, SQL, Git"></div>
+            </div>
+
+            <div class="config-block">
+              <div class="card-label" style="margin-bottom:.5rem">AI 생성 <span class="badge badge-ai">Gemini</span></div>
+              <p class="field-hint" style="margin-top:0">Gemini AI가 이력서를 작성하고 최적 레이아웃을 추천합니다.</p>
+            </div>
+            <div class="step-actions">
+              <button id="rs-btn-back" class="btn btn-ghost">이전</button>
+              <button id="rs-btn-generate" class="btn btn-primary" style="background:linear-gradient(135deg,#059669,#10b981)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span id="rs-btn-gen-text">AI 이력서 생성</span></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RS Step 3 -->
+      <section id="rs-step-editor" class="step hidden">
+        <!-- Layout Selector -->
+        <div class="layout-selector" id="rs-layout-selector">
+          <div class="card-label">레이아웃 선택</div>
+          <div class="layout-options">
+            <button class="layout-card active" data-layout="classic">
+              <div class="layout-thumb layout-thumb-classic"><div></div><div></div><div></div></div>
+              <span>클래식</span>
+            </button>
+            <button class="layout-card" data-layout="modern">
+              <div class="layout-thumb layout-thumb-modern"><div></div><div></div></div>
+              <span>모던</span>
+            </button>
+            <button class="layout-card" data-layout="minimal">
+              <div class="layout-thumb layout-thumb-minimal"><div></div><div></div><div></div></div>
+              <span>미니멀</span>
+            </button>
+            <button class="layout-card layout-ai" data-layout="ai">
+              <div class="layout-thumb layout-thumb-ai"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+              <span>AI 추천</span>
             </button>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- ============ Step 3: Editor ============ -->
-    <section id="step-editor" class="step hidden">
-      <div class="editor-header">
-        <div class="mode-tabs">
-          <button id="btn-preview-mode" class="tab active" data-mode="preview">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            미리보기
-          </button>
-          <button id="btn-edit-mode" class="tab" data-mode="edit">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            편집
-          </button>
-          <button id="btn-split-mode" class="tab" data-mode="split">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
-            분할
-          </button>
+        <div class="editor-header">
+          <div class="mode-tabs">
+            <button class="tab active" data-mode="preview" data-ctx="rs"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 미리보기</button>
+            <button class="tab" data-mode="edit" data-ctx="rs"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> 편집</button>
+            <button class="tab" data-mode="split" data-ctx="rs"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg> 분할</button>
+          </div>
+          <div class="editor-actions">
+            <button id="rs-btn-copy" class="btn btn-ghost btn-sm">복사</button>
+            <button id="rs-btn-dl-md" class="btn btn-ghost btn-sm">MD</button>
+            <button id="rs-btn-dl-html" class="btn btn-primary btn-sm"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> HTML 다운로드</button>
+          </div>
         </div>
-        <div class="editor-actions">
-          <button id="btn-copy" class="btn btn-ghost btn-sm">복사</button>
-          <button id="btn-download" class="btn btn-primary btn-sm">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            MD 다운로드
-          </button>
+        <div class="editor-container" id="rs-editor-container" data-mode="preview">
+          <div class="editor-pane"><textarea id="rs-md-editor" spellcheck="false"></textarea></div>
+          <div class="preview-pane"><div id="rs-md-preview" class="markdown-body"></div></div>
         </div>
-      </div>
-
-      <div class="editor-container" id="editor-container" data-mode="preview">
-        <div class="editor-pane" id="edit-pane">
-          <textarea id="md-editor" spellcheck="false"></textarea>
+        <div class="step-actions" style="margin-top:1rem">
+          <button id="rs-btn-back-mapping" class="btn btn-ghost">정보 입력으로</button>
+          <button id="rs-btn-regenerate" class="btn btn-ghost">다시 생성</button>
         </div>
-        <div class="preview-pane" id="preview-pane">
-          <div id="md-preview" class="markdown-body"></div>
-        </div>
-      </div>
-
-      <div class="step-actions" style="margin-top:1rem">
-        <button id="btn-back-mapping" class="btn btn-ghost">섹션 매핑으로</button>
-        <button id="btn-regenerate" class="btn btn-ghost">다시 생성</button>
-      </div>
-    </section>
+      </section>
+    </div>
   </main>
 
-  <!-- Toast -->
   <div id="toast" class="toast"></div>
 
   <script src="js/emm-parser.js"></script>
   <script src="js/generator.js"></script>
   <script src="js/gemini.js"></script>
+  <script src="js/resume-generator.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
