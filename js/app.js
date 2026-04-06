@@ -412,6 +412,97 @@
   $('#rs-btn-back').addEventListener('click', () => goToStep(1));
   $('#rs-btn-back-mapping').addEventListener('click', () => goToStep(2));
 
+  // ---- Multi-item add/delete ----
+  const MULTI_TEMPLATES = {
+    edu: `<div class="field-row"><div class="field"><label>학교명</label><input type="text" data-key="school" placeholder="OO대학교"></div><div class="field"><label>전공</label><input type="text" data-key="major" placeholder="컴퓨터공학"></div></div><div class="field-row" style="margin-top:.4rem"><div class="field"><label>기간</label><input type="text" data-key="period" placeholder="2018.03 ~ 2024.02"></div><div class="field"><label>학점</label><input type="text" data-key="gpa" placeholder="3.8 / 4.5"></div></div>`,
+    exp: `<div class="field-row"><div class="field"><label>회사명</label><input type="text" data-key="company" placeholder="OO회사"></div><div class="field"><label>직무</label><input type="text" data-key="role" placeholder="백엔드 개발자"></div></div><div class="field-row" style="margin-top:.4rem"><div class="field"><label>기간</label><input type="text" data-key="period" placeholder="2023.01 ~ 2024.06"></div><div class="field"><label>주요 성과</label><input type="text" data-key="desc" placeholder="API 응답속도 40% 개선"></div></div>`,
+    cert: `<div class="field-row"><div class="field"><label>자격증명</label><input type="text" data-key="name" placeholder="정보처리기사"></div><div class="field"><label>취득일</label><input type="text" data-key="date" placeholder="2023.06"></div></div>`,
+    proj: `<div class="field-row"><div class="field"><label>프로젝트명</label><input type="text" data-key="name" placeholder="커버레터 빌더"></div><div class="field"><label>기간</label><input type="text" data-key="period" placeholder="2024.01 ~ 2024.03"></div></div><div class="field-row" style="margin-top:.4rem"><div class="field"><label>역할</label><input type="text" data-key="role" placeholder="풀스택 개발"></div><div class="field"><label>성과/설명</label><input type="text" data-key="desc" placeholder="사용자 500명 달성"></div></div>`,
+  };
+
+  $$('.btn-add-item').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const listId = btn.dataset.target;
+      const list = $(`#${listId}`);
+      const first = list.querySelector('.multi-item');
+      if (!first) return;
+      const group = first.dataset.group;
+      const tpl = MULTI_TEMPLATES[group];
+      if (!tpl) return;
+
+      const item = document.createElement('div');
+      item.className = 'multi-item';
+      item.dataset.group = group;
+      item.innerHTML = tpl;
+      const del = document.createElement('button');
+      del.className = 'multi-del';
+      del.textContent = '\u00d7';
+      del.addEventListener('click', () => item.remove());
+      item.appendChild(del);
+      list.appendChild(item);
+    });
+  });
+
+  // Add delete buttons to initial items
+  $$('.multi-item').forEach((item) => {
+    const del = document.createElement('button');
+    del.className = 'multi-del';
+    del.textContent = '\u00d7';
+    del.addEventListener('click', () => item.remove());
+    item.appendChild(del);
+  });
+
+  // ---- Tech Tag Input ----
+  const techTags = $('#rs-tech-tags');
+  const techInput = $('#rs-tech-input');
+  const techSet = new Set();
+
+  techInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      const val = techInput.value.replace(/,/g, '').trim();
+      if (val && !techSet.has(val)) {
+        techSet.add(val);
+        renderTechTags();
+      }
+      techInput.value = '';
+    }
+    if (e.key === 'Backspace' && !techInput.value && techSet.size > 0) {
+      const last = [...techSet].pop();
+      techSet.delete(last);
+      renderTechTags();
+    }
+  });
+
+  function renderTechTags() {
+    techTags.innerHTML = '';
+    for (const tag of techSet) {
+      const el = document.createElement('span');
+      el.className = 'tech-tag';
+      el.innerHTML = `${tag}<button class="tag-x">&times;</button>`;
+      el.querySelector('.tag-x').addEventListener('click', () => { techSet.delete(tag); renderTechTags(); });
+      techTags.appendChild(el);
+    }
+  }
+
+  // Click on wrapper focuses input
+  $('.tag-input-wrap')?.addEventListener('click', () => techInput.focus());
+
+  // ---- Collect multi-item data ----
+  function collectMultiItems(listId) {
+    const items = [];
+    $$(`#${listId} .multi-item`).forEach((item) => {
+      const data = {};
+      let hasValue = false;
+      item.querySelectorAll('input[data-key]').forEach((inp) => {
+        data[inp.dataset.key] = inp.value.trim();
+        if (inp.value.trim()) hasValue = true;
+      });
+      if (hasValue) items.push(data);
+    });
+    return items;
+  }
+
   // Layout selector
   $$('.layout-card').forEach((card) => {
     card.addEventListener('click', async () => {
@@ -453,11 +544,11 @@
       phone: $('#rs-phone').value.trim(),
       email: $('#rs-email').value.trim(),
       address: $('#rs-address').value.trim(),
-      school: $('#rs-school').value.trim(),
-      major: $('#rs-major').value.trim(),
-      eduPeriod: $('#rs-edu-period').value.trim(),
-      gpa: $('#rs-gpa').value.trim(),
-      tech: $('#rs-tech').value.trim(),
+      educations: collectMultiItems('rs-edu-list'),
+      experiences: collectMultiItems('rs-exp-list'),
+      certificates: collectMultiItems('rs-cert-list'),
+      projects: collectMultiItems('rs-proj-list'),
+      tech: [...techSet].join(', '),
     };
   }
 

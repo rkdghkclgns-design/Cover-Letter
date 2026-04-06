@@ -78,13 +78,26 @@ const ResumeGenerator = (() => {
       md += '\n---\n\n';
     }
 
-    // 학력 (폼 데이터)
-    if (formData.school) {
+    // 학력 (복수)
+    if (formData.educations?.length > 0) {
       md += `## 학력\n\n`;
       md += `| 학교 | 전공 | 기간 | 학점 |\n`;
       md += `|------|------|------|------|\n`;
-      md += `| ${formData.school} | ${formData.major || '-'} | ${formData.eduPeriod || '-'} | ${formData.gpa || '-'} |\n\n`;
-      md += '---\n\n';
+      for (const e of formData.educations) {
+        md += `| ${e.school || '-'} | ${e.major || '-'} | ${e.period || '-'} | ${e.gpa || '-'} |\n`;
+      }
+      md += '\n---\n\n';
+    }
+
+    // 경력 (복수)
+    if (formData.experiences?.length > 0) {
+      md += `## 경력\n\n`;
+      md += `| 회사 | 직무 | 기간 | 성과 |\n`;
+      md += `|------|------|------|------|\n`;
+      for (const e of formData.experiences) {
+        md += `| ${e.company || '-'} | ${e.role || '-'} | ${e.period || '-'} | ${e.desc || '-'} |\n`;
+      }
+      md += '\n---\n\n';
     }
 
     // 기술스택 (폼 데이터)
@@ -92,6 +105,28 @@ const ResumeGenerator = (() => {
       md += `## 기술스택\n\n`;
       const techs = formData.tech.split(',').map((t) => t.trim()).filter(Boolean);
       md += techs.map((t) => `\`${t}\``).join(' ') + '\n\n---\n\n';
+    }
+
+    // 자격증 (복수)
+    if (formData.certificates?.length > 0) {
+      md += `## 자격증\n\n`;
+      for (const c of formData.certificates) {
+        md += `- **${c.name || '-'}** (${c.date || '-'})\n`;
+      }
+      md += '\n---\n\n';
+    }
+
+    // 프로젝트 (복수)
+    if (formData.projects?.length > 0) {
+      md += `## 프로젝트\n\n`;
+      for (const p of formData.projects) {
+        md += `### ${p.name || '프로젝트'}\n`;
+        if (p.period) md += `- **기간**: ${p.period}\n`;
+        if (p.role) md += `- **역할**: ${p.role}\n`;
+        if (p.desc) md += `- **성과**: ${p.desc}\n`;
+        md += '\n';
+      }
+      md += '---\n\n';
     }
 
     // EMM 매핑 섹션
@@ -184,11 +219,32 @@ ${bodyHTML}
 <tr><th>생년월일</th><td>${esc(fd.birth || '-')}</td><th>연락처</th><td>${esc(fd.phone || '-')}</td></tr>
 <tr><th>이메일</th><td>${esc(fd.email || '-')}</td><th>주소</th><td>${esc(fd.address || '-')}</td></tr>
 </tbody></table>`;
-    if (fd.school) {
-      body += `<h2>학력</h2><table class="data-table"><thead><tr><th>학교</th><th>전공</th><th>기간</th><th>학점</th></tr></thead><tbody>
-<tr><td>${esc(fd.school)}</td><td>${esc(fd.major||'-')}</td><td>${esc(fd.eduPeriod||'-')}</td><td>${esc(fd.gpa||'-')}</td></tr></tbody></table>`;
+    if (fd.educations?.length > 0) {
+      body += `<h2>학력</h2><table class="data-table"><thead><tr><th>학교</th><th>전공</th><th>기간</th><th>학점</th></tr></thead><tbody>`;
+      for (const e of fd.educations) body += `<tr><td>${esc(e.school||'-')}</td><td>${esc(e.major||'-')}</td><td>${esc(e.period||'-')}</td><td>${esc(e.gpa||'-')}</td></tr>`;
+      body += '</tbody></table>';
+    }
+    if (fd.experiences?.length > 0) {
+      body += `<h2>경력</h2><table class="data-table"><thead><tr><th>회사</th><th>직무</th><th>기간</th><th>성과</th></tr></thead><tbody>`;
+      for (const e of fd.experiences) body += `<tr><td>${esc(e.company||'-')}</td><td>${esc(e.role||'-')}</td><td>${esc(e.period||'-')}</td><td>${esc(e.desc||'-')}</td></tr>`;
+      body += '</tbody></table>';
     }
     if (techTags) body += `<h2>기술스택</h2><div class="tags">${techTags}</div>`;
+    if (fd.certificates?.length > 0) {
+      body += '<h2>자격증</h2><ul>';
+      for (const c of fd.certificates) body += `<li><strong>${esc(c.name||'-')}</strong> (${esc(c.date||'-')})</li>`;
+      body += '</ul>';
+    }
+    if (fd.projects?.length > 0) {
+      body += '<h2>프로젝트</h2>';
+      for (const p of fd.projects) {
+        body += `<div class="project"><h3>${esc(p.name||'프로젝트')}</h3>`;
+        if (p.period) body += `<p>기간: ${esc(p.period)}</p>`;
+        if (p.role) body += `<p>역할: ${esc(p.role)}</p>`;
+        if (p.desc) body += `<p>성과: ${esc(p.desc)}</p>`;
+        body += '</div>';
+      }
+    }
     for (const s of sections) {
       if (['personal','education','tech_stack'].includes(s.key)) continue;
       body += `<h2>${esc(s.title)}</h2>${s.content || '<p>-</p>'}`;
@@ -227,8 +283,17 @@ ul{padding-left:1.5rem;margin:.5rem 0}li{margin-bottom:.3rem;font-size:.85rem}
     sidebar += '</div>';
 
     let main = '<div class="main-col">';
-    if (fd.school) {
-      main += `<h2>학력</h2><p><strong>${esc(fd.school)}</strong> ${esc(fd.major||'')} (${esc(fd.eduPeriod||'')}) ${fd.gpa ? '학점: '+esc(fd.gpa) : ''}</p>`;
+    if (fd.educations?.length > 0) {
+      main += '<h2>학력</h2>';
+      for (const e of fd.educations) main += `<p><strong>${esc(e.school||'')}</strong> ${esc(e.major||'')} (${esc(e.period||'')}) ${e.gpa ? 'GPA: '+esc(e.gpa) : ''}</p>`;
+    }
+    if (fd.experiences?.length > 0) {
+      main += '<h2>경력</h2>';
+      for (const e of fd.experiences) main += `<p><strong>${esc(e.company||'')}</strong> ${esc(e.role||'')} (${esc(e.period||'')})${e.desc ? ' &mdash; '+esc(e.desc) : ''}</p>`;
+    }
+    if (fd.projects?.length > 0) {
+      main += '<h2>프로젝트</h2>';
+      for (const p of fd.projects) main += `<p><strong>${esc(p.name||'')}</strong> (${esc(p.period||'')}) ${esc(p.role||'')}${p.desc ? ' &mdash; '+esc(p.desc) : ''}</p>`;
     }
     for (const s of sections) {
       if (['personal','education','tech_stack',...sideKeys].includes(s.key)) continue;
@@ -261,8 +326,15 @@ ul{padding-left:1.5rem;margin:.5rem 0}li{margin-bottom:.3rem;font-size:.85rem}
     const meta = [fd.birth, fd.phone, fd.email, fd.address].filter(Boolean).map(esc);
     body += meta.join(' &middot; ');
     body += '</p></header>';
-    if (fd.school) {
-      body += `<section><h2>학력</h2><p><strong>${esc(fd.school)}</strong> ${esc(fd.major||'')} &middot; ${esc(fd.eduPeriod||'')} ${fd.gpa ? '&middot; GPA '+esc(fd.gpa) : ''}</p></section>`;
+    if (fd.educations?.length > 0) {
+      body += '<section><h2>학력</h2>';
+      for (const e of fd.educations) body += `<p><strong>${esc(e.school||'')}</strong> ${esc(e.major||'')} &middot; ${esc(e.period||'')} ${e.gpa ? '&middot; GPA '+esc(e.gpa) : ''}</p>`;
+      body += '</section>';
+    }
+    if (fd.experiences?.length > 0) {
+      body += '<section><h2>경력</h2>';
+      for (const e of fd.experiences) body += `<p><strong>${esc(e.company||'')}</strong> ${esc(e.role||'')} &middot; ${esc(e.period||'')}${e.desc ? ' &middot; '+esc(e.desc) : ''}</p>`;
+      body += '</section>';
     }
     if (techTags) body += `<section><h2>기술스택</h2><div class="tags">${techTags}</div></section>`;
     for (const s of sections) {
@@ -304,8 +376,23 @@ ul{padding-left:1.3rem;margin:.4rem 0}li{font-size:.85rem;margin-bottom:.2rem}
     if (formData.phone) prompt += `- 연락처: ${formData.phone}\n`;
     if (formData.email) prompt += `- 이메일: ${formData.email}\n`;
     if (formData.address) prompt += `- 주소: ${formData.address}\n`;
-    if (formData.school) prompt += `\n## 학력\n- ${formData.school} / ${formData.major || ''} / ${formData.eduPeriod || ''} / ${formData.gpa || ''}\n`;
+    if (formData.educations?.length > 0) {
+      prompt += `\n## 학력\n`;
+      for (const e of formData.educations) prompt += `- ${e.school||''} / ${e.major||''} / ${e.period||''} / ${e.gpa||''}\n`;
+    }
+    if (formData.experiences?.length > 0) {
+      prompt += `\n## 경력\n`;
+      for (const e of formData.experiences) prompt += `- ${e.company||''} / ${e.role||''} / ${e.period||''} / ${e.desc||''}\n`;
+    }
     if (formData.tech) prompt += `\n## 기술스택\n${formData.tech}\n`;
+    if (formData.certificates?.length > 0) {
+      prompt += `\n## 자격증\n`;
+      for (const c of formData.certificates) prompt += `- ${c.name||''} (${c.date||''})\n`;
+    }
+    if (formData.projects?.length > 0) {
+      prompt += `\n## 프로젝트\n`;
+      for (const p of formData.projects) prompt += `- ${p.name||''} / ${p.period||''} / ${p.role||''} / ${p.desc||''}\n`;
+    }
 
     prompt += `\n## EMM 마인드맵 데이터\n\n`;
     for (const m of active) {

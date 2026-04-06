@@ -191,21 +191,64 @@
               <button id="rs-btn-add-section" class="btn btn-ghost btn-sm">+ 추가</button>
             </div>
 
-            <!-- 직접 입력 필드 -->
+            <!-- 인적사항 -->
             <div class="config-block">
-              <div class="card-label" style="margin-bottom:.75rem">인적사항 (직접 입력)</div>
+              <div class="card-label" style="margin-bottom:.75rem">인적사항</div>
               <div class="field-row"><div class="field"><label>이름</label><input type="text" id="rs-name" placeholder="홍길동"></div><div class="field"><label>생년월일</label><input type="text" id="rs-birth" placeholder="1998.01.01"></div></div>
               <div class="field-row" style="margin-top:.5rem"><div class="field"><label>연락처</label><input type="text" id="rs-phone" placeholder="010-0000-0000"></div><div class="field"><label>이메일</label><input type="email" id="rs-email" placeholder="example@email.com"></div></div>
               <div class="field" style="margin-top:.5rem"><label>주소</label><input type="text" id="rs-address" placeholder="서울시 강남구"></div>
             </div>
+
+            <!-- 학력 (복수) -->
             <div class="config-block">
-              <div class="card-label" style="margin-bottom:.75rem">학력 (직접 입력)</div>
-              <div class="field-row"><div class="field"><label>학교명</label><input type="text" id="rs-school" placeholder="OO대학교"></div><div class="field"><label>전공</label><input type="text" id="rs-major" placeholder="컴퓨터공학"></div></div>
-              <div class="field-row" style="margin-top:.5rem"><div class="field"><label>기간</label><input type="text" id="rs-edu-period" placeholder="2018.03 ~ 2024.02"></div><div class="field"><label>학점</label><input type="text" id="rs-gpa" placeholder="3.8 / 4.5"></div></div>
+              <div class="multi-header"><div class="card-label">학력</div><button class="btn-add-item" data-target="rs-edu-list">+ 추가</button></div>
+              <div id="rs-edu-list" class="multi-list">
+                <div class="multi-item" data-group="edu">
+                  <div class="field-row"><div class="field"><label>학교명</label><input type="text" data-key="school" placeholder="OO대학교"></div><div class="field"><label>전공</label><input type="text" data-key="major" placeholder="컴퓨터공학"></div></div>
+                  <div class="field-row" style="margin-top:.4rem"><div class="field"><label>기간</label><input type="text" data-key="period" placeholder="2018.03 ~ 2024.02"></div><div class="field"><label>학점</label><input type="text" data-key="gpa" placeholder="3.8 / 4.5"></div></div>
+                </div>
+              </div>
             </div>
+
+            <!-- 경력 (복수) -->
             <div class="config-block">
-              <div class="card-label" style="margin-bottom:.75rem">기술스택</div>
-              <div class="field"><label>기술 (쉼표로 구분)</label><input type="text" id="rs-tech" placeholder="Python, JavaScript, React, SQL, Git"></div>
+              <div class="multi-header"><div class="card-label">경력</div><button class="btn-add-item" data-target="rs-exp-list">+ 추가</button></div>
+              <div id="rs-exp-list" class="multi-list">
+                <div class="multi-item" data-group="exp">
+                  <div class="field-row"><div class="field"><label>회사명</label><input type="text" data-key="company" placeholder="OO회사"></div><div class="field"><label>직무</label><input type="text" data-key="role" placeholder="백엔드 개발자"></div></div>
+                  <div class="field-row" style="margin-top:.4rem"><div class="field"><label>기간</label><input type="text" data-key="period" placeholder="2023.01 ~ 2024.06"></div><div class="field"><label>주요 성과</label><input type="text" data-key="desc" placeholder="API 응답속도 40% 개선"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 기술스택 (태그) -->
+            <div class="config-block">
+              <div class="card-label" style="margin-bottom:.5rem">기술스택</div>
+              <div class="tag-input-wrap">
+                <div id="rs-tech-tags" class="tag-list"></div>
+                <input type="text" id="rs-tech-input" class="tag-input" placeholder="기술 입력 후 Enter (예: React)">
+              </div>
+            </div>
+
+            <!-- 자격증 (복수) -->
+            <div class="config-block">
+              <div class="multi-header"><div class="card-label">자격증</div><button class="btn-add-item" data-target="rs-cert-list">+ 추가</button></div>
+              <div id="rs-cert-list" class="multi-list">
+                <div class="multi-item" data-group="cert">
+                  <div class="field-row"><div class="field"><label>자격증명</label><input type="text" data-key="name" placeholder="정보처리기사"></div><div class="field"><label>취득일</label><input type="text" data-key="date" placeholder="2023.06"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 프로젝트 (복수) -->
+            <div class="config-block">
+              <div class="multi-header"><div class="card-label">프로젝트</div><button class="btn-add-item" data-target="rs-proj-list">+ 추가</button></div>
+              <div id="rs-proj-list" class="multi-list">
+                <div class="multi-item" data-group="proj">
+                  <div class="field-row"><div class="field"><label>프로젝트명</label><input type="text" data-key="name" placeholder="커버레터 빌더"></div><div class="field"><label>기간</label><input type="text" data-key="period" placeholder="2024.01 ~ 2024.03"></div></div>
+                  <div class="field-row" style="margin-top:.4rem"><div class="field"><label>역할</label><input type="text" data-key="role" placeholder="풀스택 개발"></div><div class="field"><label>성과/설명</label><input type="text" data-key="desc" placeholder="사용자 500명 달성"></div></div>
+                </div>
+              </div>
             </div>
 
             <div class="config-block">

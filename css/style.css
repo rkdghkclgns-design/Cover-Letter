@@ -436,6 +436,60 @@ body {
 }
 .mapping-del:hover { color: var(--red); }
 
+/* === Multi-item (복수 입력) === */
+.multi-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: .6rem;
+}
+.multi-header .card-label { margin-bottom: 0; }
+.btn-add-item {
+  background: none; border: 1px dashed var(--accent); border-radius: var(--radius-xs);
+  color: var(--accent); font-size: .72rem; font-weight: 600; font-family: inherit;
+  padding: .25rem .6rem; cursor: pointer; transition: all var(--fast);
+}
+.btn-add-item:hover { background: var(--accent-xl); border-style: solid; }
+
+.multi-list { display: flex; flex-direction: column; gap: .5rem; }
+.multi-item {
+  position: relative; padding: .65rem .75rem; padding-right: 2rem;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--bg); transition: border-color var(--fast);
+}
+.multi-item:hover { border-color: var(--accent-l); }
+.multi-item:only-child .multi-del { display: none; }
+.multi-del {
+  position: absolute; top: .45rem; right: .5rem;
+  background: none; border: none; cursor: pointer;
+  color: var(--text-3); font-size: .9rem; line-height: 1;
+  transition: color var(--fast);
+}
+.multi-del:hover { color: var(--red); }
+
+/* Tag Input */
+.tag-input-wrap {
+  display: flex; flex-wrap: wrap; gap: .35rem; align-items: center;
+  padding: .45rem .65rem; min-height: 38px;
+  border: 1px solid var(--border); border-radius: var(--radius-xs);
+  background: #fff; transition: border-color var(--fast); cursor: text;
+}
+.tag-input-wrap:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-l); }
+.tag-list { display: contents; }
+.tech-tag {
+  display: inline-flex; align-items: center; gap: .2rem;
+  padding: .15rem .55rem; background: var(--accent-l); color: var(--accent);
+  border-radius: 99px; font-size: .72rem; font-weight: 600; white-space: nowrap;
+}
+.tech-tag .tag-x {
+  background: none; border: none; cursor: pointer; color: var(--accent);
+  font-size: .8rem; line-height: 1; opacity: .6;
+}
+.tech-tag .tag-x:hover { opacity: 1; }
+.tag-input {
+  border: none; outline: none; font-size: .8rem; font-family: inherit;
+  min-width: 80px; flex: 1; background: transparent; padding: 0;
+}
+.tag-input::placeholder { color: var(--text-3); }
+
 /* Step Actions */
 .step-actions {
   display: flex; justify-content: space-between; align-items: center;
