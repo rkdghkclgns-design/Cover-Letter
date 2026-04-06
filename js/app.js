@@ -568,11 +568,10 @@
     preview.style.overflow = 'auto';
     const iframe = document.createElement('iframe');
     iframe.style.cssText = 'width:100%;border:none;min-height:600px;max-height:800px';
+    iframe.sandbox = 'allow-same-origin';
+    iframe.srcdoc = rsHTMLContent;
     preview.innerHTML = '';
     preview.appendChild(iframe);
-    iframe.contentDocument.open();
-    iframe.contentDocument.write(rsHTMLContent);
-    iframe.contentDocument.close();
   }
 
   async function rsGenerate() {
