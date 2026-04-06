@@ -565,16 +565,14 @@
     const params = getResumeParams();
     rsHTMLContent = ResumeGenerator.generateHTML(params);
     const preview = $('#rs-md-preview');
+    preview.style.overflow = 'auto';
     const iframe = document.createElement('iframe');
-    iframe.style.cssText = 'width:100%;border:none;min-height:600px';
+    iframe.style.cssText = 'width:100%;border:none;min-height:600px;max-height:800px';
     preview.innerHTML = '';
     preview.appendChild(iframe);
     iframe.contentDocument.open();
     iframe.contentDocument.write(rsHTMLContent);
     iframe.contentDocument.close();
-    iframe.onload = () => {
-      iframe.style.height = iframe.contentDocument.body.scrollHeight + 'px';
-    };
   }
 
   async function rsGenerate() {
