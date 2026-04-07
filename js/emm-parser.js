@@ -1,163 +1,185 @@
 /**
- * EMM Parser - AlMind 마인드맵 파일(.emm) 파서
- *
- * AlMind EMM 파일은 XML 기반 마인드맵 포맷입니다.
- * FreeMind(.mm) 호환 포맷도 지원합니다.
+ * EMM Parser v3 — AlMind ZIP + FreeMind XML 지원
+ * AlMind EMM = ZIP 아카이브 (map/maps/map1.xml 내부에 m:topic 구조)
+ * FreeMind MM = 플레인 XML (<node TEXT="..."> 구조)
  */
 
 const EmmParser = (() => {
+  let idCounter = 0;
+  function genId() { return `node-${++idCounter}`; }
+
   /**
-   * EMM/XML 텍스트를 파싱하여 마인드맵 트리 구조로 반환
-   * @param {string} xmlText - EMM 파일의 XML 텍스트
-   * @returns {{ root: MindMapNode }} 파싱된 마인드맵
+   * 파일 바이너리 또는 텍스트를 파싱
+   * @param {ArrayBuffer|string} data - 파일 데이터
+   * @returns {Promise<{ root: MindMapNode }>}
    */
-  function parse(xmlText) {
+  async function parse(data) {
     idCounter = 0;
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(xmlText, 'application/xml');
 
-    const parseError = doc.querySelector('parsererror');
-    if (parseError) {
-      throw new Error('유효하지 않은 EMM 파일 형식입니다.');
+    // ZIP 감지 (PK 시그니처)
+    if (isZip(data)) {
+      return await parseZipEmm(data);
     }
 
-    const rootEl = findRootNode(doc);
-    if (!rootEl) {
-      throw new Error('마인드맵 루트 노드를 찾을 수 없습니다.');
-    }
+    // 플레인 XML (FreeMind .mm 등)
+    const xmlText = typeof data === 'string' ? data : new TextDecoder('utf-8').decode(data);
+    return parseXml(xmlText);
+  }
 
-    const root = parseNode(rootEl);
-    return { root };
+  function isZip(data) {
+    if (data instanceof ArrayBuffer) {
+      const view = new Uint8Array(data, 0, 4);
+      return view[0] === 0x50 && view[1] === 0x4B; // PK
+    }
+    if (typeof data === 'string') {
+      return data.charCodeAt(0) === 0x50 && data.charCodeAt(1) === 0x4B;
+    }
+    return false;
   }
 
   /**
-   * XML 문서에서 루트 마인드맵 노드를 탐색
-   * AlMind, FreeMind, XMind 등 다양한 포맷 지원
+   * AlMind ZIP EMM 파싱
    */
-  function findRootNode(doc) {
-    // AlMind EMM 형식: <map><node ...>
-    const mapNode = doc.querySelector('map > node');
-    if (mapNode) return mapNode;
+  async function parseZipEmm(data) {
+    if (typeof JSZip === 'undefined') {
+      throw new Error('JSZip 라이브러리가 로드되지 않았습니다.');
+    }
 
-    // 직접 <node> 루트
-    const directNode = doc.querySelector('node');
-    if (directNode) return directNode;
+    const zip = await JSZip.loadAsync(data);
 
-    // AlMind 다른 변형: <Topic> 요소
-    const topicNode = doc.querySelector('Topic');
-    if (topicNode) return topicNode;
+    // map1.xml 우선, 없으면 mapMaster1.xml
+    let xmlFile = zip.file('map/maps/map1.xml') || zip.file('map/maps/mapMaster1.xml');
 
-    // EMM 변형: <CentralTopic> 또는 <OrgChart>
-    const central = doc.querySelector('CentralTopic, OrgChart');
-    if (central) return central;
+    // 못 찾으면 xml 파일 전체 검색
+    if (!xmlFile) {
+      const xmlFiles = Object.keys(zip.files).filter((n) => n.endsWith('.xml') && n.includes('map'));
+      if (xmlFiles.length > 0) xmlFile = zip.file(xmlFiles[0]);
+    }
 
+    if (!xmlFile) {
+      throw new Error('EMM 파일 내부에 맵 XML을 찾을 수 없습니다.');
+    }
+
+    const xmlText = await xmlFile.async('string');
+    return parseAlMindXml(xmlText);
+  }
+
+  /**
+   * AlMind 네임스페이스 XML 파싱 (m:topic → m:textBox → m:text → m:char)
+   */
+  function parseAlMindXml(xmlText) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xmlText, 'application/xml');
+
+    if (doc.querySelector('parsererror')) {
+      throw new Error('EMM 내부 XML 파싱 실패');
+    }
+
+    // 루트 m:topic 찾기 (첫 번째 topic)
+    const allTopics = doc.getElementsByTagName('m:topic');
+    if (allTopics.length === 0) {
+      // 네임스페이스 없이 시도
+      const fallback = doc.getElementsByTagName('topic');
+      if (fallback.length === 0) throw new Error('토픽 노드를 찾을 수 없습니다.');
+      return { root: parseAlMindNode(fallback[0], 0) };
+    }
+
+    return { root: parseAlMindNode(allTopics[0], 0) };
+  }
+
+  function parseAlMindNode(el, depth) {
+    if (depth > 50) return { id: genId(), text: '(max depth)', children: [] };
+
+    const text = extractAlMindText(el);
+    const children = [];
+
+    // 직계 자식 m:topic만 수집 (중첩 방지)
+    for (const child of el.children) {
+      const tag = child.tagName || child.nodeName;
+      if (tag === 'm:topic' || tag === 'topic') {
+        children.push(parseAlMindNode(child, depth + 1));
+      }
+    }
+
+    return { id: genId(), text: text || '(제목 없음)', children };
+  }
+
+  function extractAlMindText(el) {
+    // m:char 텍스트 수집 (m:textBox → m:p → m:text → m:char)
+    const chars = el.getElementsByTagName('m:char');
+    if (chars.length > 0) {
+      // 직계 textBox의 char만 (자식 topic의 char 제외)
+      const textBox = findDirectChild(el, 'm:textBox') || findDirectChild(el, 'textBox');
+      if (textBox) {
+        const directChars = textBox.getElementsByTagName('m:char');
+        if (directChars.length > 0) {
+          return Array.from(directChars).map((c) => c.textContent).join('');
+        }
+      }
+      // 첫 번째 char 그룹만 사용
+      return chars[0].textContent.trim();
+    }
+
+    // 네임스페이스 없는 fallback
+    const fallbackChars = el.getElementsByTagName('char');
+    if (fallbackChars.length > 0) return fallbackChars[0].textContent.trim();
+
+    // TEXT 속성 (FreeMind 호환)
+    return el.getAttribute('TEXT') || el.getAttribute('text') || '';
+  }
+
+  function findDirectChild(el, tagName) {
+    for (const child of el.children) {
+      if ((child.tagName || child.nodeName) === tagName) return child;
+    }
     return null;
   }
 
   /**
-   * XML 요소를 재귀적으로 MindMapNode로 변환
-   * @param {Element} el - XML 요소
-   * @returns {MindMapNode}
+   * 플레인 XML 파싱 (FreeMind, 기타)
    */
-  function parseNode(el, depth = 0) {
-    if (depth > 50) return { id: generateId(), text: '(max depth)', children: [] };
-    const text = extractText(el);
+  function parseXml(xmlText) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xmlText, 'application/xml');
+
+    if (doc.querySelector('parsererror')) {
+      throw new Error('유효하지 않은 XML 파일 형식입니다.');
+    }
+
+    // FreeMind: <map><node TEXT="...">
+    const mapNode = doc.querySelector('map > node') || doc.querySelector('node');
+    if (mapNode) return { root: parseFreeMindNode(mapNode, 0) };
+
+    // AlMind XML (ZIP 없이 직접)
+    const topic = doc.getElementsByTagName('m:topic')[0] || doc.getElementsByTagName('topic')[0];
+    if (topic) return { root: parseAlMindNode(topic, 0) };
+
+    throw new Error('지원되는 마인드맵 구조를 찾을 수 없습니다.');
+  }
+
+  function parseFreeMindNode(el, depth) {
+    if (depth > 50) return { id: genId(), text: '(max depth)', children: [] };
+
+    const text = el.getAttribute('TEXT') || el.getAttribute('text') || '';
     const children = [];
 
-    // <node> 자식 탐색 (FreeMind/AlMind 공통)
     const childNodes = el.querySelectorAll(':scope > node');
-    childNodes.forEach((child) => {
-      children.push(parseNode(child, depth + 1));
-    });
+    childNodes.forEach((child) => children.push(parseFreeMindNode(child, depth + 1)));
 
-    // <Topic> 자식 탐색 (AlMind 변형)
-    if (children.length === 0) {
-      const topicChildren = el.querySelectorAll(':scope > Topic, :scope > SubTopic');
-      topicChildren.forEach((child) => {
-        children.push(parseNode(child, depth + 1));
-      });
-    }
-
-    // <children> 래퍼가 있는 경우
-    if (children.length === 0) {
-      const childrenWrapper = el.querySelector(':scope > children');
-      if (childrenWrapper) {
-        const wrappedNodes = childrenWrapper.querySelectorAll(':scope > node, :scope > Topic');
-        wrappedNodes.forEach((child) => {
-          children.push(parseNode(child, depth + 1));
-        });
+    // richcontent fallback
+    if (!text) {
+      const rich = el.querySelector(':scope > richcontent');
+      if (rich) {
+        const body = rich.querySelector('html body, body');
+        if (body) return { id: genId(), text: body.textContent.trim(), children };
       }
     }
 
-    return {
-      id: generateId(),
-      text: text || '(제목 없음)',
-      children,
-    };
+    return { id: genId(), text: text || '(제목 없음)', children };
   }
 
   /**
-   * 노드에서 텍스트를 추출
-   * 여러 속성/자식 요소 패턴을 순차 탐색
-   */
-  function extractText(el) {
-    // TEXT 속성 (FreeMind/AlMind 표준)
-    const textAttr = el.getAttribute('TEXT') || el.getAttribute('text');
-    if (textAttr) return textAttr.trim();
-
-    // TITLE 속성
-    const titleAttr = el.getAttribute('TITLE') || el.getAttribute('title');
-    if (titleAttr) return titleAttr.trim();
-
-    // NAME 속성
-    const nameAttr = el.getAttribute('NAME') || el.getAttribute('name');
-    if (nameAttr) return nameAttr.trim();
-
-    // <richcontent> 자식에서 텍스트 추출
-    const richContent = el.querySelector(':scope > richcontent');
-    if (richContent) {
-      const htmlContent = richContent.querySelector('html body, body');
-      if (htmlContent) return htmlContent.textContent.trim();
-      return richContent.textContent.trim();
-    }
-
-    // <title>, <text>, <name> 자식 요소
-    for (const tag of ['title', 'text', 'name', 'label']) {
-      const child = el.querySelector(`:scope > ${tag}`);
-      if (child && child.textContent.trim()) {
-        return child.textContent.trim();
-      }
-    }
-
-    // 직접 텍스트 콘텐츠 (자식 요소 제외)
-    const directText = getDirectTextContent(el);
-    if (directText) return directText;
-
-    return '';
-  }
-
-  /**
-   * 요소의 직접 텍스트 노드만 추출 (자식 요소 텍스트 제외)
-   */
-  function getDirectTextContent(el) {
-    let text = '';
-    for (const node of el.childNodes) {
-      if (node.nodeType === Node.TEXT_NODE) {
-        text += node.textContent;
-      }
-    }
-    return text.trim();
-  }
-
-  let idCounter = 0;
-  function generateId() {
-    return `node-${++idCounter}`;
-  }
-
-  /**
-   * 파싱된 트리에서 1레벨 브랜치(루트 직계 자식) 추출
-   * @param {{ root: MindMapNode }} tree
-   * @returns {Array<{ id: string, text: string, children: MindMapNode[] }>}
+   * 1레벨 브랜치 추출
    */
   function getBranches(tree) {
     return tree.root.children.map((child) => ({
@@ -168,114 +190,52 @@ const EmmParser = (() => {
   }
 
   /**
-   * 노드와 자손의 모든 텍스트를 플랫 배열로 수집
-   * @param {MindMapNode} node
-   * @returns {string[]}
-   */
-  function collectTexts(node) {
-    const texts = [node.text];
-    for (const child of node.children) {
-      texts.push(...collectTexts(child));
-    }
-    return texts;
-  }
-
-  /**
-   * 노드를 구조적 텍스트로 변환 (들여쓰기 포함)
-   * @param {MindMapNode} node
-   * @param {number} depth
-   * @returns {string}
-   */
-  function toOutline(node, depth = 0) {
-    const indent = '  '.repeat(depth);
-    const bullet = depth === 0 ? '' : '- ';
-    let result = `${indent}${bullet}${node.text}\n`;
-    for (const child of node.children) {
-      result += toOutline(child, depth + 1);
-    }
-    return result;
-  }
-
-  /**
-   * 데모 데이터 생성
-   * @returns {{ root: MindMapNode }}
+   * 데모 데이터
    */
   function createDemoData() {
     idCounter = 0;
     return {
       root: {
-        id: generateId(),
-        text: '자기소개서',
+        id: genId(), text: '자기소개서',
         children: [
-          {
-            id: generateId(),
-            text: '지원동기',
-            children: [
-              { id: generateId(), text: '해당 분야에 대한 오랜 관심과 열정', children: [] },
-              { id: generateId(), text: '대학교 관련 전공 수강 및 프로젝트 경험', children: [] },
-              { id: generateId(), text: '산업의 성장성과 비전에 공감', children: [] },
-              { id: generateId(), text: '기업의 가치관과 개인 목표의 일치', children: [] },
-            ],
-          },
-          {
-            id: generateId(),
-            text: '몰입 경험',
-            children: [
-              { id: generateId(), text: '팀 프로젝트에서 핵심 기능 개발 담당', children: [] },
-              { id: generateId(), text: '2주간 밤낮으로 문제 해결에 집중', children: [] },
-              { id: generateId(), text: '최종 발표에서 우수상 수상', children: [] },
-              { id: generateId(), text: '몰입을 통해 배운 끈기와 문제해결력', children: [] },
-            ],
-          },
-          {
-            id: generateId(),
-            text: '역량 개발',
-            children: [
-              { id: generateId(), text: '관련 기술 독학 6개월 과정', children: [] },
-              { id: generateId(), text: '온라인 강의 수료 (총 120시간)', children: [] },
-              { id: generateId(), text: '개인 프로젝트 3건 완수', children: [] },
-              { id: generateId(), text: '실패에서 배운 교훈과 개선 과정', children: [] },
-            ],
-          },
-          {
-            id: generateId(),
-            text: '핵심 역량',
-            children: [
-              { id: generateId(), text: '프로그래밍: Python, JavaScript, SQL', children: [] },
-              { id: generateId(), text: '자격증: 정보처리기사, SQLD', children: [] },
-              { id: generateId(), text: '포트폴리오: 개인 웹서비스 운영 경험', children: [] },
-              { id: generateId(), text: '협업: Git 활용 팀 프로젝트 5회', children: [] },
-            ],
-          },
-          {
-            id: generateId(),
-            text: '성격 및 가치관',
-            children: [
-              { id: generateId(), text: '책임감: 맡은 일은 끝까지 완수', children: [] },
-              { id: generateId(), text: '소통: 팀 내 의견 조율 경험', children: [] },
-              { id: generateId(), text: '성장지향: 매일 1시간 자기개발', children: [] },
-            ],
-          },
-          {
-            id: generateId(),
-            text: '입사 후 포부',
-            children: [
-              { id: generateId(), text: '1년차: 직무 역량 안정화 및 업무 숙달', children: [] },
-              { id: generateId(), text: '3년차: 팀 내 핵심 인력으로 성장', children: [] },
-              { id: generateId(), text: '5년차: 프로젝트 리드 역할 수행', children: [] },
-            ],
-          },
+          { id: genId(), text: '지원동기', children: [
+            { id: genId(), text: '해당 분야에 대한 오랜 관심과 열정', children: [] },
+            { id: genId(), text: '대학교 관련 전공 수강 및 프로젝트 경험', children: [] },
+            { id: genId(), text: '산업의 성장성과 비전에 공감', children: [] },
+            { id: genId(), text: '기업의 가치관과 개인 목표의 일치', children: [] },
+          ]},
+          { id: genId(), text: '몰입 경험', children: [
+            { id: genId(), text: '팀 프로젝트에서 핵심 기능 개발 담당', children: [] },
+            { id: genId(), text: '2주간 밤낮으로 문제 해결에 집중', children: [] },
+            { id: genId(), text: '최종 발표에서 우수상 수상', children: [] },
+            { id: genId(), text: '몰입을 통해 배운 끈기와 문제해결력', children: [] },
+          ]},
+          { id: genId(), text: '역량 개발', children: [
+            { id: genId(), text: '관련 기술 독학 6개월 과정', children: [] },
+            { id: genId(), text: '온라인 강의 수료 (총 120시간)', children: [] },
+            { id: genId(), text: '개인 프로젝트 3건 완수', children: [] },
+            { id: genId(), text: '실패에서 배운 교훈과 개선 과정', children: [] },
+          ]},
+          { id: genId(), text: '핵심 역량', children: [
+            { id: genId(), text: '프로그래밍: Python, JavaScript, SQL', children: [] },
+            { id: genId(), text: '자격증: 정보처리기사, SQLD', children: [] },
+            { id: genId(), text: '포트폴리오: 개인 웹서비스 운영 경험', children: [] },
+            { id: genId(), text: '협업: Git 활용 팀 프로젝트 5회', children: [] },
+          ]},
+          { id: genId(), text: '성격 및 가치관', children: [
+            { id: genId(), text: '책임감: 맡은 일은 끝까지 완수', children: [] },
+            { id: genId(), text: '소통: 팀 내 의견 조율 경험', children: [] },
+            { id: genId(), text: '성장지향: 매일 1시간 자기개발', children: [] },
+          ]},
+          { id: genId(), text: '입사 후 포부', children: [
+            { id: genId(), text: '1년차: 직무 역량 안정화 및 업무 숙달', children: [] },
+            { id: genId(), text: '3년차: 팀 내 핵심 인력으로 성장', children: [] },
+            { id: genId(), text: '5년차: 프로젝트 리드 역할 수행', children: [] },
+          ]},
         ],
       },
     };
   }
 
-  // Public API
-  return {
-    parse,
-    getBranches,
-    collectTexts,
-    toOutline,
-    createDemoData,
-  };
+  return { parse, getBranches, createDemoData };
 })();

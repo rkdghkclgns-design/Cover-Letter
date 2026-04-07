@@ -318,9 +318,9 @@
       const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
       if (!['.emm', '.mm', '.xml'].includes(ext)) { showToast('지원하지 않는 파일 형식입니다'); return; }
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         try {
-          const tree = EmmParser.parse(e.target.result);
+          const tree = await EmmParser.parse(e.target.result);
           state[currentTab].tree = tree;
           nameEl.textContent = file.name;
           info.classList.remove('hidden');
@@ -329,7 +329,7 @@
           onParsed(tree);
         } catch (err) { showToast('파싱 실패: ' + err.message); }
       };
-      reader.readAsText(file, 'UTF-8');
+      reader.readAsArrayBuffer(file);
     }
   }
 
