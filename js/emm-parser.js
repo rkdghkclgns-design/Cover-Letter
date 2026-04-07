@@ -93,11 +93,18 @@ const EmmParser = (() => {
     const text = extractAlMindText(el);
     const children = [];
 
-    // 직계 자식 m:topic만 수집 (중첩 방지)
+    // m:topicBranch 래퍼 안의 m:topic을 수집
     for (const child of el.children) {
       const tag = child.tagName || child.nodeName;
       if (tag === 'm:topic' || tag === 'topic') {
         children.push(parseAlMindNode(child, depth + 1));
+      } else if (tag === 'm:topicBranch' || tag === 'topicBranch') {
+        for (const grandchild of child.children) {
+          const gtag = grandchild.tagName || grandchild.nodeName;
+          if (gtag === 'm:topic' || gtag === 'topic') {
+            children.push(parseAlMindNode(grandchild, depth + 1));
+          }
+        }
       }
     }
 
