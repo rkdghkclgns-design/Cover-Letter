@@ -199,10 +199,12 @@ const ResumeGenerator = (() => {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;color:#1a1a2e;line-height:1.6;background:#fff}
-@media print{body{background:#fff}@page{margin:15mm}}
+body{font-family:'Inter','Noto Sans KR',sans-serif;color:#1e1b4b;line-height:1.65;background:#fff;-webkit-font-smoothing:antialiased}
+@media print{body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{margin:12mm 15mm}}
 ${extraCSS}
 </style>
 </head>
@@ -239,9 +241,8 @@ ${bodyHTML}
       body += '<h2>프로젝트</h2>';
       for (const p of fd.projects) {
         body += `<div class="project"><h3>${esc(p.name||'프로젝트')}</h3>`;
-        if (p.period) body += `<p>기간: ${esc(p.period)}</p>`;
-        if (p.role) body += `<p>역할: ${esc(p.role)}</p>`;
-        if (p.desc) body += `<p>성과: ${esc(p.desc)}</p>`;
+        const details = [p.period, p.role, p.desc].filter(Boolean).map(esc);
+        if (details.length) body += `<p>${details.join(' · ')}</p>`;
         body += '</div>';
       }
     }
@@ -250,29 +251,38 @@ ${bodyHTML}
       body += `<h2>${esc(s.title)}</h2>${s.content || '<p>-</p>'}`;
     }
     body += '</div>';
-    const css = `.resume{max-width:800px;margin:0 auto;padding:2rem}
-h1{font-size:1.6rem;text-align:center;margin-bottom:1.5rem;border-bottom:2px solid #1a1a2e;padding-bottom:.5rem}
-h2{font-size:1rem;margin:1.5rem 0 .5rem;padding:.3rem .6rem;background:#f5f3ff;border-left:4px solid #7c3aed;color:#7c3aed}
-table{width:100%;border-collapse:collapse;margin-bottom:1rem}
-.info-table th{width:15%;background:#fafafa;padding:.4rem .6rem;border:1px solid #e5e7eb;font-size:.85rem}
-.info-table td{padding:.4rem .6rem;border:1px solid #e5e7eb;font-size:.85rem}
-.data-table th{background:#fafafa;padding:.4rem .6rem;border:1px solid #e5e7eb;font-size:.82rem;text-align:center}
-.data-table td{padding:.4rem .6rem;border:1px solid #e5e7eb;font-size:.82rem;text-align:center}
-ul{padding-left:1.5rem;margin:.5rem 0}li{margin-bottom:.3rem;font-size:.85rem}
-.tags{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
-.tag{padding:.2rem .6rem;background:#ede9fe;color:#7c3aed;border-radius:4px;font-size:.78rem;font-weight:500}`;
+    const css = `.resume{max-width:820px;margin:0 auto;padding:3rem 2.5rem}
+h1{font-size:1.8rem;font-weight:800;text-align:center;letter-spacing:-.03em;margin-bottom:.4rem}
+.subtitle{text-align:center;color:#6b7280;font-size:.82rem;margin-bottom:2rem}
+h2{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#7c3aed;margin:2rem 0 .8rem;padding-bottom:.5rem;border-bottom:2px solid #ede9fe;display:flex;align-items:center;gap:.5rem}
+h2::before{content:'';width:3px;height:14px;background:linear-gradient(to bottom,#7c3aed,#a78bfa);border-radius:2px;flex-shrink:0}
+h3{font-size:.88rem;font-weight:600;margin:.8rem 0 .3rem;color:#1e1b4b}
+table{width:100%;border-collapse:separate;border-spacing:0;margin-bottom:.5rem;border-radius:8px;overflow:hidden;border:1px solid #e5e7eb}
+.info-table th{width:14%;background:#f8f7ff;padding:.6rem .8rem;font-size:.78rem;font-weight:600;color:#6b7280;text-align:left;border-bottom:1px solid #e5e7eb}
+.info-table td{padding:.6rem .8rem;font-size:.85rem;border-bottom:1px solid #e5e7eb}
+.info-table tr:last-child th,.info-table tr:last-child td{border-bottom:none}
+.data-table th{background:#f8f7ff;padding:.55rem .8rem;font-size:.75rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;text-align:left;border-bottom:2px solid #e5e7eb}
+.data-table td{padding:.6rem .8rem;font-size:.84rem;border-bottom:1px solid #f3f4f6}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:#faf9ff}
+ul{padding-left:1.2rem;margin:.4rem 0}li{margin-bottom:.35rem;font-size:.84rem;line-height:1.5}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;margin:.6rem 0}
+.tag{padding:.3rem .75rem;background:linear-gradient(135deg,#f5f3ff,#ede9fe);color:#6d28d9;border-radius:6px;font-size:.76rem;font-weight:600;border:1px solid #ddd6fe}
+.project{padding:.8rem 1rem;margin-bottom:.6rem;border:1px solid #e5e7eb;border-radius:10px;background:#fafafa}
+.project:hover{border-color:#c4b5fd;background:#faf9ff}
+.project p{font-size:.82rem;color:#4b5563;margin-top:.2rem}`;
     return wrapHTML('이력서 - ' + (fd.name || ''), body, css);
   }
 
   function buildModernHTML(fd, sections, techTags) {
     let sidebar = `<div class="sidebar">
 <h1>${esc(fd.name || '이름')}</h1>
-<div class="contact">`;
-    if (fd.birth) sidebar += `<p>${esc(fd.birth)}</p>`;
-    if (fd.phone) sidebar += `<p>${esc(fd.phone)}</p>`;
-    if (fd.email) sidebar += `<p>${esc(fd.email)}</p>`;
-    if (fd.address) sidebar += `<p>${esc(fd.address)}</p>`;
-    sidebar += '</div>';
+<div class="role">&nbsp;</div>
+<h2>연락처</h2>`;
+    if (fd.birth) sidebar += `<div class="contact-item">${esc(fd.birth)}</div>`;
+    if (fd.phone) sidebar += `<div class="contact-item">${esc(fd.phone)}</div>`;
+    if (fd.email) sidebar += `<div class="contact-item">${esc(fd.email)}</div>`;
+    if (fd.address) sidebar += `<div class="contact-item">${esc(fd.address)}</div>`;
     if (techTags) sidebar += `<h2>기술스택</h2><div class="tags">${techTags}</div>`;
     const sideKeys = ['certificate', 'language', 'military'];
     for (const s of sections) {
@@ -285,15 +295,15 @@ ul{padding-left:1.5rem;margin:.5rem 0}li{margin-bottom:.3rem;font-size:.85rem}
     let main = '<div class="main-col">';
     if (fd.educations?.length > 0) {
       main += '<h2>학력</h2>';
-      for (const e of fd.educations) main += `<p><strong>${esc(e.school||'')}</strong> ${esc(e.major||'')} (${esc(e.period||'')}) ${e.gpa ? 'GPA: '+esc(e.gpa) : ''}</p>`;
+      for (const e of fd.educations) main += `<div class="exp-card"><div class="exp-title">${esc(e.school||'')}</div><div class="exp-sub">${esc(e.major||'')} &middot; ${esc(e.period||'')}${e.gpa ? ' &middot; GPA '+esc(e.gpa) : ''}</div></div>`;
     }
     if (fd.experiences?.length > 0) {
       main += '<h2>경력</h2>';
-      for (const e of fd.experiences) main += `<p><strong>${esc(e.company||'')}</strong> ${esc(e.role||'')} (${esc(e.period||'')})${e.desc ? ' &mdash; '+esc(e.desc) : ''}</p>`;
+      for (const e of fd.experiences) main += `<div class="exp-card"><div class="exp-title">${esc(e.company||'')} <span style="font-weight:400;color:#6b7280">${esc(e.role||'')}</span></div><div class="exp-sub">${esc(e.period||'')}${e.desc ? ' &middot; '+esc(e.desc) : ''}</div></div>`;
     }
     if (fd.projects?.length > 0) {
       main += '<h2>프로젝트</h2>';
-      for (const p of fd.projects) main += `<p><strong>${esc(p.name||'')}</strong> (${esc(p.period||'')}) ${esc(p.role||'')}${p.desc ? ' &mdash; '+esc(p.desc) : ''}</p>`;
+      for (const p of fd.projects) main += `<div class="exp-card"><div class="exp-title">${esc(p.name||'')}</div><div class="exp-sub">${esc(p.period||'')}${p.role ? ' &middot; '+esc(p.role) : ''}${p.desc ? ' &middot; '+esc(p.desc) : ''}</div></div>`;
     }
     for (const s of sections) {
       if (['personal','education','tech_stack',...sideKeys].includes(s.key)) continue;
@@ -302,19 +312,27 @@ ul{padding-left:1.5rem;margin:.5rem 0}li{margin-bottom:.3rem;font-size:.85rem}
     main += '</div>';
 
     const body = `<div class="resume">${sidebar}${main}</div>`;
-    const css = `.resume{display:flex;max-width:900px;margin:0 auto;min-height:100vh}
-.sidebar{width:280px;background:#1e1b4b;color:#fff;padding:2rem 1.5rem;flex-shrink:0}
-.sidebar h1{font-size:1.3rem;margin-bottom:1rem;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:.5rem}
-.sidebar h2{font-size:.85rem;margin:1.2rem 0 .4rem;text-transform:uppercase;letter-spacing:.05em;opacity:.7}
-.sidebar p{font-size:.82rem;margin-bottom:.2rem;opacity:.9}
-.sidebar ul{padding-left:1.2rem;margin:.3rem 0}.sidebar li{font-size:.8rem;margin-bottom:.2rem;opacity:.9}
-.contact{margin-bottom:1rem}
-.main-col{flex:1;padding:2rem}
-.main-col h2{font-size:1rem;margin:1.5rem 0 .5rem;color:#7c3aed;border-bottom:2px solid #ede9fe;padding-bottom:.3rem}
-.main-col p{font-size:.85rem;margin-bottom:.4rem}
-.main-col ul{padding-left:1.5rem;margin:.5rem 0}.main-col li{font-size:.85rem;margin-bottom:.3rem}
-.tags{display:flex;flex-wrap:wrap;gap:.3rem;margin:.4rem 0}
-.tag{padding:.15rem .5rem;background:rgba(255,255,255,.15);color:#fff;border-radius:3px;font-size:.72rem}`;
+    const css = `.resume{display:flex;max-width:920px;margin:0 auto;min-height:100vh;box-shadow:0 0 60px rgba(0,0,0,.08)}
+.sidebar{width:300px;background:linear-gradient(180deg,#1e1b4b 0%,#312e81 100%);color:#fff;padding:2.5rem 1.8rem;flex-shrink:0}
+.sidebar h1{font-size:1.4rem;font-weight:800;margin-bottom:.3rem;letter-spacing:-.02em}
+.sidebar .role{font-size:.78rem;opacity:.6;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid rgba(255,255,255,.12)}
+.sidebar h2{font-size:.68rem;font-weight:700;margin:1.5rem 0 .6rem;text-transform:uppercase;letter-spacing:.12em;opacity:.45}
+.sidebar .contact-item{display:flex;align-items:center;gap:.5rem;font-size:.8rem;margin-bottom:.4rem;opacity:.85}
+.sidebar .contact-item::before{content:'';width:4px;height:4px;border-radius:50%;background:#a78bfa;flex-shrink:0}
+.sidebar ul{padding-left:1rem;margin:.3rem 0;list-style:none}.sidebar li{font-size:.78rem;margin-bottom:.3rem;opacity:.85;position:relative;padding-left:.8rem}
+.sidebar li::before{content:'';position:absolute;left:0;top:.45em;width:4px;height:4px;border-radius:50%;background:#a78bfa}
+.tags{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0}
+.tag{padding:.25rem .6rem;background:rgba(167,139,250,.2);color:#c4b5fd;border-radius:5px;font-size:.72rem;font-weight:500;border:1px solid rgba(167,139,250,.15)}
+.main-col{flex:1;padding:2.5rem 2rem}
+.main-col h2{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#7c3aed;margin:2rem 0 .8rem;padding-bottom:.5rem;border-bottom:2px solid #ede9fe}
+.main-col h2:first-child{margin-top:0}
+.main-col p{font-size:.84rem;margin-bottom:.5rem;line-height:1.6}
+.main-col strong{color:#1e1b4b}
+.main-col ul{padding-left:1.3rem;margin:.5rem 0}
+.main-col li{font-size:.84rem;margin-bottom:.35rem;line-height:1.5}
+.exp-card{padding:.8rem 0;border-bottom:1px solid #f3f4f6}
+.exp-card:last-child{border-bottom:none}
+.exp-title{font-weight:600;font-size:.88rem}.exp-sub{font-size:.78rem;color:#6b7280;margin-top:.1rem}`;
     return wrapHTML('이력서 - ' + (fd.name || ''), body, css);
   }
 
@@ -325,7 +343,7 @@ ul{padding-left:1.5rem;margin:.5rem 0}li{margin-bottom:.3rem;font-size:.85rem}
 <p class="meta">`;
     const meta = [fd.birth, fd.phone, fd.email, fd.address].filter(Boolean).map(esc);
     body += meta.join(' &middot; ');
-    body += '</p></header>';
+    body += '</p><div class="divider"></div></header>';
     if (fd.educations?.length > 0) {
       body += '<section><h2>학력</h2>';
       for (const e of fd.educations) body += `<p><strong>${esc(e.school||'')}</strong> ${esc(e.major||'')} &middot; ${esc(e.period||'')} ${e.gpa ? '&middot; GPA '+esc(e.gpa) : ''}</p>`;
@@ -342,16 +360,20 @@ ul{padding-left:1.5rem;margin:.5rem 0}li{margin-bottom:.3rem;font-size:.85rem}
       body += `<section><h2>${esc(s.title)}</h2>${s.content || '<p>-</p>'}</section>`;
     }
     body += '</div>';
-    const css = `.resume{max-width:700px;margin:0 auto;padding:3rem 2rem}
-header{text-align:center;margin-bottom:2rem}
-h1{font-size:1.8rem;font-weight:800;letter-spacing:-.03em}
-.meta{color:#6b7280;font-size:.82rem;margin-top:.3rem}
-section{margin-bottom:1.5rem}
-h2{font-size:.9rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#7c3aed;margin-bottom:.5rem;padding-bottom:.3rem;border-bottom:1px solid #e5e7eb}
-p{font-size:.85rem;margin-bottom:.3rem}
-ul{padding-left:1.3rem;margin:.4rem 0}li{font-size:.85rem;margin-bottom:.2rem}
-.tags{display:flex;flex-wrap:wrap;gap:.4rem}
-.tag{padding:.2rem .6rem;background:#f5f3ff;color:#7c3aed;border-radius:99px;font-size:.75rem;font-weight:500}`;
+    const css = `.resume{max-width:680px;margin:0 auto;padding:3.5rem 2.5rem}
+header{text-align:center;margin-bottom:2.5rem}
+h1{font-size:2.2rem;font-weight:800;letter-spacing:-.04em;color:#1e1b4b}
+.meta{color:#9ca3af;font-size:.8rem;margin-top:.5rem;letter-spacing:.02em}
+.divider{width:40px;height:3px;background:linear-gradient(90deg,#7c3aed,#a78bfa);margin:1.2rem auto 0;border-radius:2px}
+section{margin-bottom:2rem}
+h2{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:#a78bfa;margin-bottom:.7rem;padding-bottom:.4rem;border-bottom:1.5px solid #f3f4f6}
+p{font-size:.84rem;margin-bottom:.4rem;line-height:1.65;color:#374151}
+p strong{color:#1e1b4b;font-weight:600}
+ul{padding-left:1.2rem;margin:.4rem 0;list-style:none}
+li{font-size:.84rem;margin-bottom:.4rem;line-height:1.55;position:relative;padding-left:.9rem;color:#374151}
+li::before{content:'';position:absolute;left:0;top:.55em;width:5px;height:5px;border-radius:50%;background:#c4b5fd}
+.tags{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center}
+.tag{padding:.3rem .8rem;background:#f5f3ff;color:#6d28d9;border-radius:99px;font-size:.74rem;font-weight:600;border:1px solid #ede9fe}`;
     return wrapHTML('이력서 - ' + (fd.name || ''), body, css);
   }
 
