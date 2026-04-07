@@ -215,8 +215,11 @@ ${bodyHTML}
   }
 
   function buildClassicHTML(fd, sections, techTags) {
-    let body = `<div class="resume">
-<h1>${esc(fd.name || '이름')}</h1>
+    let body = `<div class="resume">`;
+    if (fd.photo) {
+      body += `<div style="text-align:center;margin-bottom:1rem"><img src="${fd.photo}" alt="증명사진" style="width:90px;height:115px;object-fit:cover;border-radius:8px;border:2px solid #e5e7eb"></div>`;
+    }
+    body += `<h1>${esc(fd.name || '이름')}</h1>
 <table class="info-table"><tbody>
 <tr><th>생년월일</th><td>${esc(fd.birth || '-')}</td><th>연락처</th><td>${esc(fd.phone || '-')}</td></tr>
 <tr><th>이메일</th><td>${esc(fd.email || '-')}</td><th>주소</th><td>${esc(fd.address || '-')}</td></tr>
@@ -275,8 +278,11 @@ ul{padding-left:1.2rem;margin:.4rem 0}li{margin-bottom:.35rem;font-size:.84rem;l
   }
 
   function buildModernHTML(fd, sections, techTags) {
-    let sidebar = `<div class="sidebar">
-<h1>${esc(fd.name || '이름')}</h1>
+    let sidebar = `<div class="sidebar">`;
+    if (fd.photo) {
+      sidebar += `<img src="${fd.photo}" alt="증명사진" style="width:100px;height:128px;object-fit:cover;border-radius:10px;border:2px solid rgba(255,255,255,.2);margin-bottom:1rem">`;
+    }
+    sidebar += `<h1>${esc(fd.name || '이름')}</h1>
 <div class="role">&nbsp;</div>
 <h2>연락처</h2>`;
     if (fd.birth) sidebar += `<div class="contact-item">${esc(fd.birth)}</div>`;
@@ -338,8 +344,11 @@ ul{padding-left:1.2rem;margin:.4rem 0}li{margin-bottom:.35rem;font-size:.84rem;l
 
   function buildMinimalHTML(fd, sections, techTags) {
     let body = `<div class="resume">
-<header>
-<h1>${esc(fd.name || '이름')}</h1>
+<header>`;
+    if (fd.photo) {
+      body += `<img src="${fd.photo}" alt="증명사진" style="width:80px;height:102px;object-fit:cover;border-radius:50%;border:3px solid #ede9fe;margin:0 auto 1rem;display:block">`;
+    }
+    body += `<h1>${esc(fd.name || '이름')}</h1>
 <p class="meta">`;
     const meta = [fd.birth, fd.phone, fd.email, fd.address].filter(Boolean).map(esc);
     body += meta.join(' &middot; ');

@@ -552,6 +552,7 @@
       certificates: collectMultiItems('rs-cert-list'),
       projects: collectMultiItems('rs-proj-list'),
       tech: [...techSet].join(', '),
+      photo: photoDataUrl || '',
     };
   }
 
@@ -614,6 +615,107 @@
   $('#rs-btn-dl-html').addEventListener('click', () => {
     const name = $('#rs-name').value.trim() || '이력서';
     downloadFile(rsHTMLContent || ResumeGenerator.generateHTML(getResumeParams()), `이력서_${name}.html`, 'text/html;charset=utf-8');
+  });
+
+  // ====================================
+  // ===== TREE DETAIL MODAL =====
+  // ====================================
+  const treeModal = $('#tree-modal');
+  const treeModalContent = $('#tree-modal-content');
+  const treeModalViewport = $('#tree-modal-viewport');
+  let treeZoom = 1;
+
+  $$('.btn-tree-detail').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const srcId = btn.dataset.tree;
+      const src = $(`#${srcId}`);
+      if (!src) return;
+      treeModalContent.innerHTML = src.innerHTML;
+      treeZoom = 1;
+      applyTreeZoom();
+      treeModal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    });
+  });
+
+  function applyTreeZoom() {
+    treeModalContent.style.transform = `scale(${treeZoom})`;
+    $('#tree-zoom-level').textContent = Math.round(treeZoom * 100) + '%';
+  }
+
+  $('#tree-zoom-in').addEventListener('click', () => { treeZoom = Math.min(3, treeZoom + 0.2); applyTreeZoom(); });
+  $('#tree-zoom-out').addEventListener('click', () => { treeZoom = Math.max(0.3, treeZoom - 0.2); applyTreeZoom(); });
+  $('#tree-zoom-fit').addEventListener('click', () => { treeZoom = 1; applyTreeZoom(); treeModalViewport.scrollTo(0, 0); });
+
+  function closeTreeModal() {
+    treeModal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+  $('#tree-modal-close').addEventListener('click', closeTreeModal);
+  $('#tree-modal-bg').addEventListener('click', closeTreeModal);
+
+  // Drag to pan
+  let isDragging = false, dragStart = { x: 0, y: 0 }, scrollStart = { x: 0, y: 0 };
+  treeModalViewport.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    dragStart = { x: e.clientX, y: e.clientY };
+    scrollStart = { x: treeModalViewport.scrollLeft, y: treeModalViewport.scrollTop };
+  });
+  treeModalViewport.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    treeModalViewport.scrollLeft = scrollStart.x - (e.clientX - dragStart.x);
+    treeModalViewport.scrollTop = scrollStart.y - (e.clientY - dragStart.y);
+  });
+  treeModalViewport.addEventListener('mouseup', () => { isDragging = false; });
+  treeModalViewport.addEventListener('mouseleave', () => { isDragging = false; });
+
+  // Scroll wheel zoom
+  treeModalViewport.addEventListener('wheel', (e) => {
+    if (!treeModal.classList.contains('hidden')) {
+      e.preventDefault();
+      treeZoom = Math.max(0.3, Math.min(3, treeZoom + (e.deltaY < 0 ? 0.1 : -0.1)));
+      applyTreeZoom();
+    }
+  }, { passive: false });
+
+  // ====================================
+  // ===== PHOTO UPLOAD =====
+  // ====================================
+  let photoDataUrl = '';
+  const photoPreview = $('#rs-photo-preview');
+  const photoInput = $('#rs-photo-input');
+  const photoImg = $('#rs-photo-img');
+  const photoPlaceholder = $('#rs-photo-placeholder');
+  const photoRemove = $('#rs-photo-remove');
+
+  photoPreview.addEventListener('click', () => photoInput.click());
+
+  photoInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      photoDataUrl = ev.target.result;
+      photoImg.src = photoDataUrl;
+      photoImg.classList.remove('hidden');
+      photoPlaceholder.classList.add('hidden');
+      photoRemove.classList.remove('hidden');
+      photoPreview.classList.remove('border-dashed');
+      photoPreview.classList.add('border-solid', 'border-brand-300');
+    };
+    reader.readAsDataURL(file);
+  });
+
+  photoRemove.addEventListener('click', (e) => {
+    e.stopPropagation();
+    photoDataUrl = '';
+    photoImg.src = '';
+    photoImg.classList.add('hidden');
+    photoPlaceholder.classList.remove('hidden');
+    photoRemove.classList.add('hidden');
+    photoPreview.classList.add('border-dashed');
+    photoPreview.classList.remove('border-solid', 'border-brand-300');
+    photoInput.value = '';
   });
 
   // ========== Init ==========

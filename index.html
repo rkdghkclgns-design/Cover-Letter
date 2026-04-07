@@ -122,8 +122,11 @@
       <section id="cl-step-mapping" class="step hidden animate-fade-up">
         <div class="grid md:grid-cols-2 gap-5">
           <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-            <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">마인드맵 구조</span>
-            <div id="cl-tree-view" class="tree-view mt-3 max-h-[460px] overflow-y-auto pr-2"></div>
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">마인드맵 구조</span>
+              <button class="btn-tree-detail text-[10px] font-semibold text-brand-600 hover:text-brand-700 flex items-center gap-1" data-tree="cl-tree-view"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>자세히보기</button>
+            </div>
+            <div id="cl-tree-view" class="tree-view mt-3 overflow-y-auto pr-2" style="max-height:600px"></div>
           </div>
           <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
             <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">섹션 매핑</span>
@@ -223,8 +226,11 @@
       <section id="rs-step-mapping" class="step hidden animate-fade-up">
         <div class="grid md:grid-cols-2 gap-5">
           <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-            <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">마인드맵 구조</span>
-            <div id="rs-tree-view" class="tree-view mt-3 max-h-[460px] overflow-y-auto pr-2"></div>
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">마인드맵 구조</span>
+              <button class="btn-tree-detail text-[10px] font-semibold text-brand-600 hover:text-brand-700 flex items-center gap-1" data-tree="rs-tree-view"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>자세히보기</button>
+            </div>
+            <div id="rs-tree-view" class="tree-view mt-3 overflow-y-auto pr-2" style="max-height:600px"></div>
           </div>
           <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-4">
             <div>
@@ -239,6 +245,18 @@
             <!-- 인적사항 -->
             <div class="pt-4 border-t border-gray-100">
               <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">인적사항</span>
+              <!-- 증명사진 -->
+              <div class="flex items-center gap-4 mt-3 mb-3">
+                <div id="rs-photo-preview" class="w-[80px] h-[100px] rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50 overflow-hidden cursor-pointer hover:border-brand-400 transition-all flex-shrink-0" title="증명사진 업로드">
+                  <div id="rs-photo-placeholder" class="text-center">
+                    <svg class="w-6 h-6 mx-auto text-gray-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0zM4.501 20.118a7.5 7.5 0 0 1 14.998 0"/></svg>
+                    <p class="text-[8px] text-gray-400 mt-1">사진 첨부</p>
+                  </div>
+                  <img id="rs-photo-img" class="w-full h-full object-cover hidden" alt="증명사진">
+                </div>
+                <input type="file" id="rs-photo-input" accept="image/*" hidden>
+                <div class="text-[10px] text-gray-400 leading-relaxed">증명사진 (선택)<br>3x4 비율 권장<br><button id="rs-photo-remove" class="text-red-400 hover:text-red-500 hidden mt-1">사진 제거</button></div>
+              </div>
               <div class="grid grid-cols-2 gap-3 mt-2">
                 <div><label class="text-[10px] font-semibold text-gray-400 uppercase">이름</label><input type="text" id="rs-name" placeholder="홍길동" class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-xs focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100 transition-all"></div>
                 <div><label class="text-[10px] font-semibold text-gray-400 uppercase">생년월일</label><input type="text" id="rs-birth" placeholder="1998.01.01" class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-xs focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100 transition-all"></div>
@@ -347,6 +365,26 @@
       </section>
     </div>
   </main>
+
+  <!-- Tree Detail Modal -->
+  <div id="tree-modal" class="fixed inset-0 z-[100] hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="tree-modal-bg"></div>
+    <div class="absolute inset-4 md:inset-10 bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-gray-200">
+        <span class="text-sm font-bold text-gray-900">마인드맵 상세보기</span>
+        <div class="flex items-center gap-2">
+          <button id="tree-zoom-in" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 text-lg font-bold">+</button>
+          <span id="tree-zoom-level" class="text-xs text-gray-400 w-10 text-center">100%</span>
+          <button id="tree-zoom-out" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 text-lg font-bold">−</button>
+          <button id="tree-zoom-fit" class="px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-medium text-gray-500 hover:bg-gray-50">맞춤</button>
+          <button id="tree-modal-close" class="ml-2 w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-500 hover:bg-red-50 hover:text-red-500 text-lg">&times;</button>
+        </div>
+      </div>
+      <div id="tree-modal-viewport" class="flex-1 overflow-auto cursor-grab active:cursor-grabbing bg-gray-50" style="position:relative">
+        <div id="tree-modal-content" class="p-8 origin-top-left" style="transform-origin:0 0"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- Toast -->
   <div id="toast" class="toast fixed bottom-6 left-1/2 -translate-x-1/2 translate-y-20 px-6 py-3 rounded-full bg-gray-900 text-white text-sm font-medium shadow-2xl z-50 pointer-events-none transition-transform duration-300"></div>
