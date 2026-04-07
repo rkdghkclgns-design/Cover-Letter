@@ -4,315 +4,350 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cover Letter & Resume Builder</title>
-  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: {
+            brand: { 50:'#f5f3ff',100:'#ede9fe',200:'#ddd6fe',300:'#c4b5fd',400:'#a78bfa',500:'#8b5cf6',600:'#7c3aed',700:'#6d28d9',800:'#5b21b6',900:'#4c1d95' },
+            mint: { 50:'#f0fdf4',100:'#dcfce7',500:'#22c55e',600:'#16a34a',700:'#15803d' },
+          },
+          animation: { 'fade-up':'fadeUp .4s ease', 'slide-in':'slideIn .3s ease' },
+          keyframes: {
+            fadeUp: { from:{ opacity:'0', transform:'translateY(12px)' }, to:{ opacity:'1', transform:'translateY(0)' } },
+            slideIn: { from:{ opacity:'0', transform:'translateX(-8px)' }, to:{ opacity:'1', transform:'translateX(0)' } }
+          }
+        }
+      }
+    }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/marked@15.0.7/marked.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.4/dist/purify.min.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+<body class="bg-brand-50 font-sans text-gray-900 antialiased min-h-screen">
+
+  <!-- Progress -->
+  <div class="fixed top-0 inset-x-0 h-[3px] bg-gray-200 z-50">
+    <div id="progress-fill" class="h-full bg-gradient-to-r from-brand-600 to-brand-400 rounded-r transition-all duration-500 w-1/3"></div>
+  </div>
 
   <!-- Header -->
-  <header class="header">
-    <div class="header-inner">
-      <div class="logo">
-        <div class="logo-icon">CL</div>
+  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-200/60">
+    <div class="max-w-6xl mx-auto flex items-center justify-between px-5 py-3">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-600 to-brand-400 text-white flex items-center justify-center text-xs font-extrabold tracking-tight">CL</div>
         <div>
-          <h1>Cover Letter & Resume Builder</h1>
-          <p class="tagline">EMM 마인드맵에서 자기소개서 & 이력서로</p>
+          <h1 class="text-sm font-bold tracking-tight">Cover Letter & Resume Builder</h1>
+          <p class="text-[11px] text-gray-400 -mt-0.5">EMM 마인드맵에서 자기소개서 & 이력서로</p>
         </div>
       </div>
-      <nav class="steps-nav" id="steps-nav">
-        <button class="nav-step active" data-step="1"><span class="nav-num">1</span><span class="nav-label">업로드</span></button>
-        <div class="nav-line"></div>
-        <button class="nav-step" data-step="2"><span class="nav-num">2</span><span class="nav-label">설정</span></button>
-        <div class="nav-line"></div>
-        <button class="nav-step" data-step="3"><span class="nav-num">3</span><span class="nav-label">편집</span></button>
+      <nav id="steps-nav" class="flex items-center gap-2">
+        <button class="nav-step active flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all" data-step="1"><span class="nav-num w-5 h-5 rounded-full border-[1.5px] border-current flex items-center justify-center text-[10px] font-bold">1</span><span class="hidden sm:inline">업로드</span></button>
+        <div class="w-5 h-px bg-gray-300"></div>
+        <button class="nav-step flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400 transition-all" data-step="2"><span class="nav-num w-5 h-5 rounded-full border-[1.5px] border-current flex items-center justify-center text-[10px] font-bold">2</span><span class="hidden sm:inline">설정</span></button>
+        <div class="w-5 h-px bg-gray-300"></div>
+        <button class="nav-step flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400 transition-all" data-step="3"><span class="nav-num w-5 h-5 rounded-full border-[1.5px] border-current flex items-center justify-center text-[10px] font-bold">3</span><span class="hidden sm:inline">편집</span></button>
       </nav>
     </div>
     <!-- Main Tabs -->
-    <div class="main-tabs-bar">
-      <div class="main-tabs" id="main-tabs">
-        <button class="main-tab active" data-tab="cover-letter">자기소개서</button>
-        <button class="main-tab" data-tab="resume">이력서</button>
-        <div class="main-tab-indicator" id="tab-indicator"></div>
+    <div class="flex justify-center border-t border-gray-100">
+      <div id="main-tabs" class="relative flex">
+        <button class="main-tab active px-7 py-2.5 text-sm font-semibold text-brand-600 transition-colors" data-tab="cover-letter">자기소개서</button>
+        <button class="main-tab px-7 py-2.5 text-sm font-semibold text-gray-400 hover:text-gray-600 transition-colors" data-tab="resume">이력서</button>
+        <div id="tab-indicator" class="absolute bottom-0 h-[3px] bg-brand-600 rounded-t transition-all duration-300"></div>
       </div>
     </div>
   </header>
 
-  <main class="main">
-    <!-- ============================== -->
-    <!-- ===== 자기소개서 탭 ===== -->
-    <!-- ============================== -->
+  <main class="max-w-6xl mx-auto px-5 py-6 pb-16">
+
+    <!-- ========== 자기소개서 탭 ========== -->
     <div id="cover-letter-content" class="tab-content active">
 
       <!-- CL Step 1 -->
-      <section id="cl-step-upload" class="step active">
-        <div class="step-grid two-col">
-          <div class="card card-upload">
-            <div class="card-label">파일 선택</div>
-            <div class="upload-area" id="cl-drop-zone">
-              <div class="upload-ring">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <section id="cl-step-upload" class="step active animate-fade-up">
+        <div class="grid md:grid-cols-2 gap-5">
+          <!-- Upload -->
+          <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">파일 선택</span>
+            <div id="cl-drop-zone" class="mt-4 border-2 border-dashed border-gray-300 rounded-xl p-10 text-center cursor-pointer hover:border-brand-500 hover:bg-brand-50/50 transition-all group">
+              <div class="w-14 h-14 mx-auto rounded-full bg-brand-100 text-brand-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
               </div>
-              <p class="upload-title">EMM 파일을 드래그하거나 클릭</p>
-              <p class="upload-sub">.emm .mm .xml 지원</p>
+              <p class="font-semibold text-sm">EMM 파일을 드래그하거나 클릭</p>
+              <p class="text-xs text-gray-400 mt-1">.emm .mm .xml 지원</p>
               <input type="file" id="cl-file-input" accept=".emm,.mm,.xml" hidden>
             </div>
-            <div id="cl-file-info" class="file-info hidden">
-              <div class="file-chip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span id="cl-file-name"></span><button id="cl-remove-file" class="chip-close">&times;</button></div>
+            <div id="cl-file-info" class="hidden mt-3">
+              <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-100 text-green-800 text-sm font-medium">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <span id="cl-file-name"></span>
+                <button id="cl-remove-file" class="text-green-600 hover:text-red-500 transition-colors">&times;</button>
+              </div>
             </div>
-            <div class="divider-text"><span>또는</span></div>
-            <button id="cl-load-demo" class="btn btn-ghost btn-full">데모 데이터로 시작하기</button>
+            <div class="flex items-center gap-3 my-5"><div class="flex-1 h-px bg-gray-200"></div><span class="text-xs text-gray-400">또는</span><div class="flex-1 h-px bg-gray-200"></div></div>
+            <button id="cl-load-demo" class="w-full py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-500 hover:border-brand-400 hover:text-brand-600 hover:bg-brand-50 transition-all">데모 데이터로 시작하기</button>
           </div>
-          <div class="card card-guide">
-            <div class="card-label">작성 가이드</div>
-            <h2 class="guide-title">두괄식 자기소개서란?</h2>
-            <p class="guide-desc">결론을 먼저 제시하고, 근거를 뒤에 배치하는 작성법입니다.</p>
-            <div class="guide-cards">
-              <div class="mini-card"><div class="mini-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div><div><strong>STAR 기법</strong><p>상황 - 행동 - 결과 - 배움</p></div></div>
-              <div class="mini-card"><div class="mini-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg></div><div><strong>경험이 없어도 OK</strong><p>알바, 동아리, 학업, 일상 모두 소재</p></div></div>
-              <div class="mini-card"><div class="mini-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div><strong>진정성 우선</strong><p>스펙보다 배운 점에 집중</p></div></div>
+          <!-- Guide -->
+          <div class="bg-gradient-to-br from-brand-50 via-purple-50 to-indigo-50 rounded-2xl border border-brand-100 p-6 shadow-sm">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">작성 가이드</span>
+            <h2 class="text-lg font-bold mt-2 mb-2">두괄식 자기소개서란?</h2>
+            <p class="text-sm text-gray-500 leading-relaxed mb-4">결론을 먼저 제시하고, 근거를 뒤에 배치하는 작성법입니다.</p>
+            <div class="space-y-2.5">
+              <div class="flex items-start gap-3 p-3 rounded-xl bg-white/60 border border-white/80 hover:bg-white hover:shadow-sm transition-all hover:translate-x-1">
+                <div class="w-8 h-8 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center flex-shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+                <div><p class="text-xs font-bold">STAR 기법</p><p class="text-[11px] text-gray-400">상황 - 행동 - 결과 - 배움</p></div>
+              </div>
+              <div class="flex items-start gap-3 p-3 rounded-xl bg-white/60 border border-white/80 hover:bg-white hover:shadow-sm transition-all hover:translate-x-1">
+                <div class="w-8 h-8 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center flex-shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg></div>
+                <div><p class="text-xs font-bold">경험이 없어도 OK</p><p class="text-[11px] text-gray-400">알바, 동아리, 학업, 일상 모두 소재</p></div>
+              </div>
+              <div class="flex items-start gap-3 p-3 rounded-xl bg-white/60 border border-white/80 hover:bg-white hover:shadow-sm transition-all hover:translate-x-1">
+                <div class="w-8 h-8 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center flex-shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                <div><p class="text-xs font-bold">진정성 우선</p><p class="text-[11px] text-gray-400">스펙보다 배운 점에 집중</p></div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       <!-- CL Step 2 -->
-      <section id="cl-step-mapping" class="step hidden">
-        <div class="step-grid two-col">
-          <div class="card">
-            <div class="card-label">마인드맵 구조</div>
-            <div id="cl-tree-view" class="tree-view"></div>
+      <section id="cl-step-mapping" class="step hidden animate-fade-up">
+        <div class="grid md:grid-cols-2 gap-5">
+          <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">마인드맵 구조</span>
+            <div id="cl-tree-view" class="tree-view mt-3 max-h-[460px] overflow-y-auto pr-2"></div>
           </div>
-          <div class="card">
-            <div class="card-label">섹션 매핑</div>
-            <p class="hint">브랜치를 자기소개서 섹션에 연결하세요.</p>
-            <div id="cl-mapping-list" class="mapping-list"></div>
-            <div class="add-section-row">
-              <input type="text" id="cl-custom-section-input" class="add-section-input" placeholder="커스텀 섹션명 입력">
-              <button id="cl-btn-add-section" class="btn btn-ghost btn-sm">+ 추가</button>
+          <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">섹션 매핑</span>
+            <p class="text-xs text-gray-400 mt-1 mb-3">브랜치를 자기소개서 섹션에 연결하세요.</p>
+            <div id="cl-mapping-list" class="mapping-list space-y-1.5"></div>
+            <div class="flex gap-2 mt-3">
+              <input type="text" id="cl-custom-section-input" class="flex-1 px-3 py-2 border border-dashed border-gray-300 rounded-lg text-xs bg-gray-50 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100 transition-all" placeholder="커스텀 섹션명 입력">
+              <button id="cl-btn-add-section" class="px-3 py-2 border border-dashed border-brand-400 rounded-lg text-xs font-semibold text-brand-600 hover:bg-brand-50 hover:border-solid transition-all">+ 추가</button>
             </div>
-            <div class="config-block">
-              <div class="card-label" style="margin-bottom:.75rem">지원 정보</div>
-              <div class="field-row">
-                <div class="field"><label>회사명</label><input type="text" id="cl-company" placeholder="예: 넥슨"></div>
-                <div class="field"><label>지원 직무</label><input type="text" id="cl-position" placeholder="예: 게임 프로그래머"></div>
+            <div class="mt-5 pt-4 border-t border-gray-100">
+              <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">지원 정보</span>
+              <div class="grid grid-cols-2 gap-3 mt-2">
+                <div><label class="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">회사명</label><input type="text" id="cl-company" placeholder="예: 넥슨" class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-xs focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100 transition-all"></div>
+                <div><label class="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">지원 직무</label><input type="text" id="cl-position" placeholder="예: 게임 프로그래머" class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-xs focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100 transition-all"></div>
               </div>
             </div>
-            <div class="config-block">
-              <div class="card-label" style="margin-bottom:.5rem">AI 생성 <span class="badge badge-ai">Gemini</span></div>
-              <p class="field-hint" style="margin-top:0">Gemini AI가 두괄식 + STAR 기법으로 자기소개서를 작성합니다.</p>
+            <div class="mt-4 pt-3 border-t border-gray-100">
+              <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">AI 생성</span>
+              <span class="ml-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-white text-[9px] font-bold uppercase">Gemini</span>
+              <p class="text-[11px] text-gray-400 mt-1">Gemini AI가 두괄식 + STAR 기법으로 자기소개서를 작성합니다.</p>
             </div>
-            <details class="exp-helper"><summary>경험이 부족하다면? 소재 찾기 도우미</summary><div class="exp-helper-body"><div class="exp-category"><strong>아르바이트</strong><p>고객 응대, 문제 해결, 시간 관리</p></div><div class="exp-category"><strong>동아리/학회</strong><p>팀워크, 토론, 기획력, 리더십</p></div><div class="exp-category"><strong>학업/프로젝트</strong><p>과제 수행, 발표, 끈기 있는 노력</p></div><div class="exp-category"><strong>일상/취미</strong><p>여행, 봉사, 자기개발, 도전</p></div></div></details>
-            <div class="step-actions">
-              <button id="cl-btn-back" class="btn btn-ghost">이전</button>
-              <button id="cl-btn-generate" class="btn btn-primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span id="cl-btn-gen-text">AI 자기소개서 생성</span></button>
+            <details class="mt-4 border border-gray-200 rounded-xl overflow-hidden">
+              <summary class="px-4 py-3 text-xs font-semibold text-brand-600 bg-brand-50 cursor-pointer hover:bg-brand-100 transition-colors select-none">+ 경험이 부족하다면? 소재 찾기 도우미</summary>
+              <div class="p-4 space-y-2 text-xs"><div class="py-1.5 border-b border-gray-100"><strong>아르바이트</strong><span class="text-gray-400 ml-2">고객 응대, 문제 해결, 시간 관리</span></div><div class="py-1.5 border-b border-gray-100"><strong>동아리/학회</strong><span class="text-gray-400 ml-2">팀워크, 토론, 기획력</span></div><div class="py-1.5 border-b border-gray-100"><strong>학업/프로젝트</strong><span class="text-gray-400 ml-2">과제 수행, 발표, 끈기</span></div><div class="py-1.5"><strong>일상/취미</strong><span class="text-gray-400 ml-2">여행, 봉사, 도전</span></div></div>
+            </details>
+            <div class="flex justify-between items-center mt-5 pt-4 border-t border-gray-100">
+              <button id="cl-btn-back" class="px-4 py-2 border border-gray-200 rounded-xl text-xs font-medium text-gray-500 hover:border-brand-400 hover:text-brand-600 transition-all">이전</button>
+              <button id="cl-btn-generate" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 text-white text-xs font-semibold shadow-lg shadow-brand-200 hover:shadow-xl hover:shadow-brand-300 hover:-translate-y-0.5 transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                <span id="cl-btn-gen-text">AI 자기소개서 생성</span>
+              </button>
             </div>
           </div>
         </div>
       </section>
 
       <!-- CL Step 3 -->
-      <section id="cl-step-editor" class="step hidden">
-        <div class="editor-header">
-          <div class="mode-tabs">
-            <button class="tab active" data-mode="preview" data-ctx="cl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 미리보기</button>
-            <button class="tab" data-mode="edit" data-ctx="cl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> 편집</button>
-            <button class="tab" data-mode="split" data-ctx="cl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg> 분할</button>
+      <section id="cl-step-editor" class="step hidden animate-fade-up">
+        <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <div class="flex bg-gray-100 rounded-xl p-1 gap-0.5">
+            <button class="tab active inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium transition-all" data-mode="preview" data-ctx="cl"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>미리보기</button>
+            <button class="tab inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium text-gray-400 transition-all" data-mode="edit" data-ctx="cl"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>편집</button>
+            <button class="tab inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium text-gray-400 transition-all" data-mode="split" data-ctx="cl"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>분할</button>
           </div>
-          <div class="editor-actions">
-            <button id="cl-btn-copy" class="btn btn-ghost btn-sm">복사</button>
-            <button id="cl-btn-download" class="btn btn-primary btn-sm"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> MD 다운로드</button>
+          <div class="flex gap-2">
+            <button id="cl-btn-copy" class="px-4 py-2 border border-gray-200 rounded-xl text-xs font-medium text-gray-500 hover:border-brand-400 hover:text-brand-600 transition-all">복사</button>
+            <button id="cl-btn-download" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 text-white text-xs font-semibold shadow-lg shadow-brand-200 hover:shadow-xl transition-all"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>MD 다운로드</button>
           </div>
         </div>
-        <div class="editor-container" id="cl-editor-container" data-mode="preview">
-          <div class="editor-pane"><textarea id="cl-md-editor" spellcheck="false"></textarea></div>
-          <div class="preview-pane"><div id="cl-md-preview" class="markdown-body"></div></div>
+        <div id="cl-editor-container" class="editor-container flex border border-gray-200 rounded-2xl overflow-hidden shadow-sm min-h-[520px]" data-mode="preview">
+          <div class="editor-pane flex-1 bg-gray-50"><textarea id="cl-md-editor" class="w-full h-full min-h-[520px] p-6 border-none resize-none text-[13px] leading-relaxed font-mono bg-gray-50 focus:bg-white focus:outline-none" spellcheck="false"></textarea></div>
+          <div class="preview-pane flex-1 bg-white overflow-auto"><div id="cl-md-preview" class="markdown-body p-6"></div></div>
         </div>
-        <div class="step-actions" style="margin-top:1rem">
-          <button id="cl-btn-back-mapping" class="btn btn-ghost">섹션 매핑으로</button>
-          <button id="cl-btn-regenerate" class="btn btn-ghost">다시 생성</button>
+        <div class="flex justify-between items-center mt-4">
+          <button id="cl-btn-back-mapping" class="px-4 py-2 border border-gray-200 rounded-xl text-xs font-medium text-gray-500 hover:border-brand-400 hover:text-brand-600 transition-all">섹션 매핑으로</button>
+          <button id="cl-btn-regenerate" class="px-4 py-2 border border-gray-200 rounded-xl text-xs font-medium text-gray-500 hover:border-brand-400 hover:text-brand-600 transition-all">다시 생성</button>
         </div>
       </section>
     </div>
 
-    <!-- ============================== -->
-    <!-- ======= 이력서 탭 ======= -->
-    <!-- ============================== -->
+    <!-- ========== 이력서 탭 ========== -->
     <div id="resume-content" class="tab-content">
 
       <!-- RS Step 1 -->
-      <section id="rs-step-upload" class="step active">
-        <div class="step-grid two-col">
-          <div class="card card-upload">
-            <div class="card-label">파일 선택</div>
-            <div class="upload-area" id="rs-drop-zone">
-              <div class="upload-ring">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <section id="rs-step-upload" class="step active animate-fade-up">
+        <div class="grid md:grid-cols-2 gap-5">
+          <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">파일 선택</span>
+            <div id="rs-drop-zone" class="mt-4 border-2 border-dashed border-gray-300 rounded-xl p-10 text-center cursor-pointer hover:border-mint-600 hover:bg-mint-50/50 transition-all group">
+              <div class="w-14 h-14 mx-auto rounded-full bg-mint-100 text-mint-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
               </div>
-              <p class="upload-title">EMM 파일을 드래그하거나 클릭</p>
-              <p class="upload-sub">.emm .mm .xml 지원</p>
+              <p class="font-semibold text-sm">EMM 파일을 드래그하거나 클릭</p>
+              <p class="text-xs text-gray-400 mt-1">.emm .mm .xml 지원</p>
               <input type="file" id="rs-file-input" accept=".emm,.mm,.xml" hidden>
             </div>
-            <div id="rs-file-info" class="file-info hidden">
-              <div class="file-chip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span id="rs-file-name"></span><button id="rs-remove-file" class="chip-close">&times;</button></div>
+            <div id="rs-file-info" class="hidden mt-3">
+              <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-100 text-green-800 text-sm font-medium"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span id="rs-file-name"></span><button id="rs-remove-file" class="text-green-600 hover:text-red-500">&times;</button></div>
             </div>
-            <div class="divider-text"><span>또는</span></div>
-            <button id="rs-load-demo" class="btn btn-ghost btn-full">데모 데이터로 시작하기</button>
+            <div class="flex items-center gap-3 my-5"><div class="flex-1 h-px bg-gray-200"></div><span class="text-xs text-gray-400">또는</span><div class="flex-1 h-px bg-gray-200"></div></div>
+            <button id="rs-load-demo" class="w-full py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-500 hover:border-mint-500 hover:text-mint-700 hover:bg-mint-50 transition-all">데모 데이터로 시작하기</button>
           </div>
-          <div class="card card-guide" style="background:linear-gradient(145deg,#f0fdf4,#ecfdf5,#eff6ff)">
-            <div class="card-label" style="color:#059669">이력서 가이드</div>
-            <h2 class="guide-title">EMM으로 이력서 만들기</h2>
-            <p class="guide-desc">마인드맵으로 정리한 경력/학력/프로젝트를 이력서로 변환합니다. EMM에 없는 정보는 직접 입력할 수 있습니다.</p>
-            <div class="guide-cards">
-              <div class="mini-card"><div class="mini-icon" style="background:#d1fae5;color:#059669"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></div><div><strong>3가지 레이아웃</strong><p>클래식, 모던, 미니멀 선택</p></div></div>
-              <div class="mini-card"><div class="mini-icon" style="background:#d1fae5;color:#059669"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div><strong>AI 레이아웃 추천</strong><p>데이터 기반 최적 배치</p></div></div>
-              <div class="mini-card"><div class="mini-icon" style="background:#d1fae5;color:#059669"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><strong>MD + HTML 다운로드</strong><p>인쇄 가능한 이력서</p></div></div>
+          <div class="bg-gradient-to-br from-mint-50 via-emerald-50 to-teal-50 rounded-2xl border border-green-100 p-6 shadow-sm">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-mint-700">이력서 가이드</span>
+            <h2 class="text-lg font-bold mt-2 mb-2">EMM으로 이력서 만들기</h2>
+            <p class="text-sm text-gray-500 leading-relaxed mb-4">마인드맵을 이력서로 변환합니다. EMM에 없는 정보는 직접 입력하세요.</p>
+            <div class="space-y-2.5">
+              <div class="flex items-start gap-3 p-3 rounded-xl bg-white/60 border border-white/80 hover:bg-white hover:shadow-sm transition-all hover:translate-x-1"><div class="w-8 h-8 rounded-lg bg-green-100 text-green-600 flex items-center justify-center flex-shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></div><div><p class="text-xs font-bold">3가지 레이아웃</p><p class="text-[11px] text-gray-400">클래식, 모던, 미니멀</p></div></div>
+              <div class="flex items-start gap-3 p-3 rounded-xl bg-white/60 border border-white/80 hover:bg-white hover:shadow-sm transition-all hover:translate-x-1"><div class="w-8 h-8 rounded-lg bg-green-100 text-green-600 flex items-center justify-center flex-shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div><p class="text-xs font-bold">AI 레이아웃 추천</p><p class="text-[11px] text-gray-400">데이터 기반 최적 배치</p></div></div>
+              <div class="flex items-start gap-3 p-3 rounded-xl bg-white/60 border border-white/80 hover:bg-white hover:shadow-sm transition-all hover:translate-x-1"><div class="w-8 h-8 rounded-lg bg-green-100 text-green-600 flex items-center justify-center flex-shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><p class="text-xs font-bold">MD + HTML 다운로드</p><p class="text-[11px] text-gray-400">인쇄 가능한 이력서</p></div></div>
             </div>
           </div>
         </div>
       </section>
 
       <!-- RS Step 2 -->
-      <section id="rs-step-mapping" class="step hidden">
-        <div class="step-grid two-col">
-          <div class="card">
-            <div class="card-label">마인드맵 구조</div>
-            <div id="rs-tree-view" class="tree-view"></div>
+      <section id="rs-step-mapping" class="step hidden animate-fade-up">
+        <div class="grid md:grid-cols-2 gap-5">
+          <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">마인드맵 구조</span>
+            <div id="rs-tree-view" class="tree-view mt-3 max-h-[460px] overflow-y-auto pr-2"></div>
           </div>
-          <div class="card">
-            <div class="card-label">섹션 매핑</div>
-            <p class="hint">브랜치를 이력서 섹션에 연결하세요.</p>
-            <div id="rs-mapping-list" class="mapping-list"></div>
-            <div class="add-section-row">
-              <input type="text" id="rs-custom-section-input" class="add-section-input" placeholder="커스텀 섹션명 입력">
-              <button id="rs-btn-add-section" class="btn btn-ghost btn-sm">+ 추가</button>
+          <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-4">
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">섹션 매핑</span>
+              <p class="text-xs text-gray-400 mt-1 mb-3">브랜치를 이력서 섹션에 연결하세요.</p>
+              <div id="rs-mapping-list" class="mapping-list space-y-1.5"></div>
+              <div class="flex gap-2 mt-3">
+                <input type="text" id="rs-custom-section-input" class="flex-1 px-3 py-2 border border-dashed border-gray-300 rounded-lg text-xs bg-gray-50 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100 transition-all" placeholder="커스텀 섹션명 입력">
+                <button id="rs-btn-add-section" class="px-3 py-2 border border-dashed border-brand-400 rounded-lg text-xs font-semibold text-brand-600 hover:bg-brand-50 hover:border-solid transition-all">+ 추가</button>
+              </div>
             </div>
-
             <!-- 인적사항 -->
-            <div class="config-block">
-              <div class="card-label" style="margin-bottom:.75rem">인적사항</div>
-              <div class="field-row"><div class="field"><label>이름</label><input type="text" id="rs-name" placeholder="홍길동"></div><div class="field"><label>생년월일</label><input type="text" id="rs-birth" placeholder="1998.01.01"></div></div>
-              <div class="field-row" style="margin-top:.5rem"><div class="field"><label>연락처</label><input type="text" id="rs-phone" placeholder="010-0000-0000"></div><div class="field"><label>이메일</label><input type="email" id="rs-email" placeholder="example@email.com"></div></div>
-              <div class="field" style="margin-top:.5rem"><label>주소</label><input type="text" id="rs-address" placeholder="서울시 강남구"></div>
+            <div class="pt-4 border-t border-gray-100">
+              <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">인적사항</span>
+              <div class="grid grid-cols-2 gap-3 mt-2">
+                <div><label class="text-[10px] font-semibold text-gray-400 uppercase">이름</label><input type="text" id="rs-name" placeholder="홍길동" class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-xs focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100 transition-all"></div>
+                <div><label class="text-[10px] font-semibold text-gray-400 uppercase">생년월일</label><input type="text" id="rs-birth" placeholder="1998.01.01" class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-xs focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100 transition-all"></div>
+              </div>
+              <div class="grid grid-cols-2 gap-3 mt-2">
+                <div><label class="text-[10px] font-semibold text-gray-400 uppercase">연락처</label><input type="text" id="rs-phone" placeholder="010-0000-0000" class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-xs focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100 transition-all"></div>
+                <div><label class="text-[10px] font-semibold text-gray-400 uppercase">이메일</label><input type="email" id="rs-email" placeholder="example@email.com" class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-xs focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100 transition-all"></div>
+              </div>
+              <div class="mt-2"><label class="text-[10px] font-semibold text-gray-400 uppercase">주소</label><input type="text" id="rs-address" placeholder="서울시 강남구" class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-xs focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100 transition-all"></div>
             </div>
-
-            <!-- 학력 (복수) -->
-            <div class="config-block">
-              <div class="multi-header"><div class="card-label">학력</div><button class="btn-add-item" data-target="rs-edu-list">+ 추가</button></div>
-              <div id="rs-edu-list" class="multi-list">
-                <div class="multi-item" data-group="edu">
-                  <div class="field-row"><div class="field"><label>학교명</label><input type="text" data-key="school" placeholder="OO대학교"></div><div class="field"><label>전공</label><input type="text" data-key="major" placeholder="컴퓨터공학"></div></div>
-                  <div class="field-row" style="margin-top:.4rem"><div class="field"><label>기간</label><input type="text" data-key="period" placeholder="2018.03 ~ 2024.02"></div><div class="field"><label>학점</label><input type="text" data-key="gpa" placeholder="3.8 / 4.5"></div></div>
+            <!-- 학력 -->
+            <div class="pt-4 border-t border-gray-100">
+              <div class="flex justify-between items-center mb-2"><span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">학력</span><button class="btn-add-item px-2.5 py-1 border border-dashed border-brand-400 rounded-lg text-[10px] font-semibold text-brand-600 hover:bg-brand-50 hover:border-solid transition-all" data-target="rs-edu-list">+ 추가</button></div>
+              <div id="rs-edu-list" class="multi-list space-y-2">
+                <div class="multi-item relative p-3 pr-8 border border-gray-200 rounded-xl bg-gray-50 hover:border-brand-200 transition-colors" data-group="edu">
+                  <div class="grid grid-cols-2 gap-2"><div><label class="text-[10px] font-semibold text-gray-400 uppercase">학교명</label><input type="text" data-key="school" placeholder="OO대학교" class="w-full mt-0.5 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:border-brand-500 focus:outline-none transition-all"></div><div><label class="text-[10px] font-semibold text-gray-400 uppercase">전공</label><input type="text" data-key="major" placeholder="컴퓨터공학" class="w-full mt-0.5 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:border-brand-500 focus:outline-none transition-all"></div></div>
+                  <div class="grid grid-cols-2 gap-2 mt-1.5"><div><label class="text-[10px] font-semibold text-gray-400 uppercase">기간</label><input type="text" data-key="period" placeholder="2018.03 ~ 2024.02" class="w-full mt-0.5 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:border-brand-500 focus:outline-none transition-all"></div><div><label class="text-[10px] font-semibold text-gray-400 uppercase">학점</label><input type="text" data-key="gpa" placeholder="3.8 / 4.5" class="w-full mt-0.5 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:border-brand-500 focus:outline-none transition-all"></div></div>
                 </div>
               </div>
             </div>
-
-            <!-- 경력 (복수) -->
-            <div class="config-block">
-              <div class="multi-header"><div class="card-label">경력</div><button class="btn-add-item" data-target="rs-exp-list">+ 추가</button></div>
-              <div id="rs-exp-list" class="multi-list">
-                <div class="multi-item" data-group="exp">
-                  <div class="field-row"><div class="field"><label>회사명</label><input type="text" data-key="company" placeholder="OO회사"></div><div class="field"><label>직무</label><input type="text" data-key="role" placeholder="백엔드 개발자"></div></div>
-                  <div class="field-row" style="margin-top:.4rem"><div class="field"><label>기간</label><input type="text" data-key="period" placeholder="2023.01 ~ 2024.06"></div><div class="field"><label>주요 성과</label><input type="text" data-key="desc" placeholder="API 응답속도 40% 개선"></div></div>
+            <!-- 경력 -->
+            <div class="pt-4 border-t border-gray-100">
+              <div class="flex justify-between items-center mb-2"><span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">경력</span><button class="btn-add-item px-2.5 py-1 border border-dashed border-brand-400 rounded-lg text-[10px] font-semibold text-brand-600 hover:bg-brand-50 hover:border-solid transition-all" data-target="rs-exp-list">+ 추가</button></div>
+              <div id="rs-exp-list" class="multi-list space-y-2">
+                <div class="multi-item relative p-3 pr-8 border border-gray-200 rounded-xl bg-gray-50 hover:border-brand-200 transition-colors" data-group="exp">
+                  <div class="grid grid-cols-2 gap-2"><div><label class="text-[10px] font-semibold text-gray-400 uppercase">회사명</label><input type="text" data-key="company" placeholder="OO회사" class="w-full mt-0.5 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:border-brand-500 focus:outline-none transition-all"></div><div><label class="text-[10px] font-semibold text-gray-400 uppercase">직무</label><input type="text" data-key="role" placeholder="백엔드 개발자" class="w-full mt-0.5 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:border-brand-500 focus:outline-none transition-all"></div></div>
+                  <div class="grid grid-cols-2 gap-2 mt-1.5"><div><label class="text-[10px] font-semibold text-gray-400 uppercase">기간</label><input type="text" data-key="period" placeholder="2023.01 ~ 2024.06" class="w-full mt-0.5 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:border-brand-500 focus:outline-none transition-all"></div><div><label class="text-[10px] font-semibold text-gray-400 uppercase">주요 성과</label><input type="text" data-key="desc" placeholder="API 응답속도 40% 개선" class="w-full mt-0.5 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:border-brand-500 focus:outline-none transition-all"></div></div>
                 </div>
               </div>
             </div>
-
-            <!-- 기술스택 (태그) -->
-            <div class="config-block">
-              <div class="card-label" style="margin-bottom:.5rem">기술스택</div>
-              <div class="tag-input-wrap">
-                <div id="rs-tech-tags" class="tag-list"></div>
-                <input type="text" id="rs-tech-input" class="tag-input" placeholder="기술 입력 후 Enter (예: React)">
+            <!-- 기술스택 -->
+            <div class="pt-4 border-t border-gray-100">
+              <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600 mb-2 block">기술스택</span>
+              <div class="tag-input-wrap flex flex-wrap gap-1.5 items-center p-2.5 min-h-[38px] border border-gray-200 rounded-xl bg-white cursor-text focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-100 transition-all">
+                <div id="rs-tech-tags" class="contents"></div>
+                <input type="text" id="rs-tech-input" class="flex-1 min-w-[80px] border-none outline-none text-xs bg-transparent p-0" placeholder="기술 입력 후 Enter">
               </div>
             </div>
-
-            <!-- 자격증 (복수) -->
-            <div class="config-block">
-              <div class="multi-header"><div class="card-label">자격증</div><button class="btn-add-item" data-target="rs-cert-list">+ 추가</button></div>
-              <div id="rs-cert-list" class="multi-list">
-                <div class="multi-item" data-group="cert">
-                  <div class="field-row"><div class="field"><label>자격증명</label><input type="text" data-key="name" placeholder="정보처리기사"></div><div class="field"><label>취득일</label><input type="text" data-key="date" placeholder="2023.06"></div></div>
+            <!-- 자격증 -->
+            <div class="pt-4 border-t border-gray-100">
+              <div class="flex justify-between items-center mb-2"><span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">자격증</span><button class="btn-add-item px-2.5 py-1 border border-dashed border-brand-400 rounded-lg text-[10px] font-semibold text-brand-600 hover:bg-brand-50 hover:border-solid transition-all" data-target="rs-cert-list">+ 추가</button></div>
+              <div id="rs-cert-list" class="multi-list space-y-2">
+                <div class="multi-item relative p-3 pr-8 border border-gray-200 rounded-xl bg-gray-50 hover:border-brand-200 transition-colors" data-group="cert">
+                  <div class="grid grid-cols-2 gap-2"><div><label class="text-[10px] font-semibold text-gray-400 uppercase">자격증명</label><input type="text" data-key="name" placeholder="정보처리기사" class="w-full mt-0.5 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:border-brand-500 focus:outline-none transition-all"></div><div><label class="text-[10px] font-semibold text-gray-400 uppercase">취득일</label><input type="text" data-key="date" placeholder="2023.06" class="w-full mt-0.5 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:border-brand-500 focus:outline-none transition-all"></div></div>
                 </div>
               </div>
             </div>
-
-            <!-- 프로젝트 (복수) -->
-            <div class="config-block">
-              <div class="multi-header"><div class="card-label">프로젝트</div><button class="btn-add-item" data-target="rs-proj-list">+ 추가</button></div>
-              <div id="rs-proj-list" class="multi-list">
-                <div class="multi-item" data-group="proj">
-                  <div class="field-row"><div class="field"><label>프로젝트명</label><input type="text" data-key="name" placeholder="커버레터 빌더"></div><div class="field"><label>기간</label><input type="text" data-key="period" placeholder="2024.01 ~ 2024.03"></div></div>
-                  <div class="field-row" style="margin-top:.4rem"><div class="field"><label>역할</label><input type="text" data-key="role" placeholder="풀스택 개발"></div><div class="field"><label>성과/설명</label><input type="text" data-key="desc" placeholder="사용자 500명 달성"></div></div>
+            <!-- 프로젝트 -->
+            <div class="pt-4 border-t border-gray-100">
+              <div class="flex justify-between items-center mb-2"><span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">프로젝트</span><button class="btn-add-item px-2.5 py-1 border border-dashed border-brand-400 rounded-lg text-[10px] font-semibold text-brand-600 hover:bg-brand-50 hover:border-solid transition-all" data-target="rs-proj-list">+ 추가</button></div>
+              <div id="rs-proj-list" class="multi-list space-y-2">
+                <div class="multi-item relative p-3 pr-8 border border-gray-200 rounded-xl bg-gray-50 hover:border-brand-200 transition-colors" data-group="proj">
+                  <div class="grid grid-cols-2 gap-2"><div><label class="text-[10px] font-semibold text-gray-400 uppercase">프로젝트명</label><input type="text" data-key="name" placeholder="커버레터 빌더" class="w-full mt-0.5 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:border-brand-500 focus:outline-none transition-all"></div><div><label class="text-[10px] font-semibold text-gray-400 uppercase">기간</label><input type="text" data-key="period" placeholder="2024.01 ~ 2024.03" class="w-full mt-0.5 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:border-brand-500 focus:outline-none transition-all"></div></div>
+                  <div class="grid grid-cols-2 gap-2 mt-1.5"><div><label class="text-[10px] font-semibold text-gray-400 uppercase">역할</label><input type="text" data-key="role" placeholder="풀스택 개발" class="w-full mt-0.5 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:border-brand-500 focus:outline-none transition-all"></div><div><label class="text-[10px] font-semibold text-gray-400 uppercase">성과/설명</label><input type="text" data-key="desc" placeholder="사용자 500명 달성" class="w-full mt-0.5 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:border-brand-500 focus:outline-none transition-all"></div></div>
                 </div>
               </div>
             </div>
-
-            <div class="config-block">
-              <div class="card-label" style="margin-bottom:.5rem">AI 생성 <span class="badge badge-ai">Gemini</span></div>
-              <p class="field-hint" style="margin-top:0">Gemini AI가 이력서를 작성하고 최적 레이아웃을 추천합니다.</p>
+            <!-- AI + Actions -->
+            <div class="pt-4 border-t border-gray-100">
+              <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">AI 생성</span>
+              <span class="ml-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-white text-[9px] font-bold uppercase">Gemini</span>
+              <p class="text-[11px] text-gray-400 mt-1">Gemini AI가 이력서를 작성하고 최적 레이아웃을 추천합니다.</p>
             </div>
-            <div class="step-actions">
-              <button id="rs-btn-back" class="btn btn-ghost">이전</button>
-              <button id="rs-btn-generate" class="btn btn-primary" style="background:linear-gradient(135deg,#059669,#10b981)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span id="rs-btn-gen-text">AI 이력서 생성</span></button>
+            <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+              <button id="rs-btn-back" class="px-4 py-2 border border-gray-200 rounded-xl text-xs font-medium text-gray-500 hover:border-brand-400 hover:text-brand-600 transition-all">이전</button>
+              <button id="rs-btn-generate" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-mint-600 to-mint-500 text-white text-xs font-semibold shadow-lg shadow-green-200 hover:shadow-xl hover:shadow-green-300 hover:-translate-y-0.5 transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                <span id="rs-btn-gen-text">AI 이력서 생성</span>
+              </button>
             </div>
           </div>
         </div>
       </section>
 
       <!-- RS Step 3 -->
-      <section id="rs-step-editor" class="step hidden">
-        <!-- Layout Selector -->
-        <div class="layout-selector" id="rs-layout-selector">
-          <div class="card-label">레이아웃 선택</div>
-          <div class="layout-options">
-            <button class="layout-card active" data-layout="classic">
-              <div class="layout-thumb layout-thumb-classic"><div></div><div></div><div></div></div>
-              <span>클래식</span>
-            </button>
-            <button class="layout-card" data-layout="modern">
-              <div class="layout-thumb layout-thumb-modern"><div></div><div></div></div>
-              <span>모던</span>
-            </button>
-            <button class="layout-card" data-layout="minimal">
-              <div class="layout-thumb layout-thumb-minimal"><div></div><div></div><div></div></div>
-              <span>미니멀</span>
-            </button>
-            <button class="layout-card layout-ai" data-layout="ai">
-              <div class="layout-thumb layout-thumb-ai"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
-              <span>AI 추천</span>
-            </button>
+      <section id="rs-step-editor" class="step hidden animate-fade-up">
+        <div id="rs-layout-selector" class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm mb-4">
+          <span class="text-[10px] font-bold uppercase tracking-widest text-brand-600">레이아웃 선택</span>
+          <div class="flex gap-3 mt-3 flex-wrap">
+            <button class="layout-card active flex-1 min-w-[90px] max-w-[140px] p-3 border-2 border-brand-500 rounded-xl bg-brand-50 text-center cursor-pointer transition-all" data-layout="classic"><div class="h-12 rounded-lg bg-white border border-gray-200 flex flex-col gap-[3px] p-1.5 overflow-hidden"><div class="w-full h-2 bg-gray-200 rounded-sm"></div><div class="w-full h-2 bg-gray-200 rounded-sm"></div><div class="w-full h-2 bg-gray-200 rounded-sm"></div></div><span class="block text-[11px] font-semibold mt-2 text-brand-600">클래식</span></button>
+            <button class="layout-card flex-1 min-w-[90px] max-w-[140px] p-3 border-2 border-gray-200 rounded-xl bg-gray-50 text-center cursor-pointer hover:border-brand-400 hover:bg-brand-50 transition-all" data-layout="modern"><div class="h-12 rounded-lg bg-white border border-gray-200 flex gap-[3px] p-1.5 overflow-hidden"><div class="w-[30%] h-full bg-brand-100 rounded-sm"></div><div class="flex-1 h-full bg-gray-200 rounded-sm"></div></div><span class="block text-[11px] font-semibold mt-2 text-gray-600">모던</span></button>
+            <button class="layout-card flex-1 min-w-[90px] max-w-[140px] p-3 border-2 border-gray-200 rounded-xl bg-gray-50 text-center cursor-pointer hover:border-brand-400 hover:bg-brand-50 transition-all" data-layout="minimal"><div class="h-12 rounded-lg bg-white border border-gray-200 flex flex-col gap-[3px] p-1.5 items-center overflow-hidden"><div class="w-1/2 h-2 bg-gray-200 rounded-sm"></div><div class="w-4/5 h-1.5 bg-gray-200 rounded-sm"></div><div class="w-4/5 h-1.5 bg-gray-200 rounded-sm"></div></div><span class="block text-[11px] font-semibold mt-2 text-gray-600">미니멀</span></button>
+            <button class="layout-card layout-ai flex-1 min-w-[90px] max-w-[140px] p-3 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 text-center cursor-pointer hover:border-brand-400 hover:bg-brand-50 transition-all" data-layout="ai"><div class="h-12 rounded-lg bg-brand-50 border border-brand-100 flex items-center justify-center text-brand-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><span class="block text-[11px] font-semibold mt-2 text-gray-600">AI 추천</span></button>
           </div>
         </div>
-
-        <div class="editor-header">
-          <div class="mode-tabs">
-            <button class="tab active" data-mode="preview" data-ctx="rs"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 미리보기</button>
-            <button class="tab" data-mode="edit" data-ctx="rs"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> 편집</button>
-            <button class="tab" data-mode="split" data-ctx="rs"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg> 분할</button>
+        <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <div class="flex bg-gray-100 rounded-xl p-1 gap-0.5">
+            <button class="tab active inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium transition-all" data-mode="preview" data-ctx="rs"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>미리보기</button>
+            <button class="tab inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium text-gray-400 transition-all" data-mode="edit" data-ctx="rs"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>편집</button>
+            <button class="tab inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium text-gray-400 transition-all" data-mode="split" data-ctx="rs"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>분할</button>
           </div>
-          <div class="editor-actions">
-            <button id="rs-btn-copy" class="btn btn-ghost btn-sm">복사</button>
-            <button id="rs-btn-dl-md" class="btn btn-ghost btn-sm">MD</button>
-            <button id="rs-btn-dl-html" class="btn btn-primary btn-sm"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> HTML 다운로드</button>
+          <div class="flex gap-2">
+            <button id="rs-btn-copy" class="px-4 py-2 border border-gray-200 rounded-xl text-xs font-medium text-gray-500 hover:border-brand-400 hover:text-brand-600 transition-all">복사</button>
+            <button id="rs-btn-dl-md" class="px-4 py-2 border border-gray-200 rounded-xl text-xs font-medium text-gray-500 hover:border-brand-400 hover:text-brand-600 transition-all">MD</button>
+            <button id="rs-btn-dl-html" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-mint-600 to-mint-500 text-white text-xs font-semibold shadow-lg shadow-green-200 hover:shadow-xl transition-all"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>HTML 다운로드</button>
           </div>
         </div>
-        <div class="editor-container" id="rs-editor-container" data-mode="preview">
-          <div class="editor-pane"><textarea id="rs-md-editor" spellcheck="false"></textarea></div>
-          <div class="preview-pane"><div id="rs-md-preview" class="markdown-body"></div></div>
+        <div id="rs-editor-container" class="editor-container flex border border-gray-200 rounded-2xl overflow-hidden shadow-sm min-h-[520px]" data-mode="preview">
+          <div class="editor-pane flex-1 bg-gray-50"><textarea id="rs-md-editor" class="w-full h-full min-h-[520px] p-6 border-none resize-none text-[13px] leading-relaxed font-mono bg-gray-50 focus:bg-white focus:outline-none" spellcheck="false"></textarea></div>
+          <div class="preview-pane flex-1 bg-white overflow-auto"><div id="rs-md-preview" class="markdown-body p-6"></div></div>
         </div>
-        <div class="step-actions" style="margin-top:1rem">
-          <button id="rs-btn-back-mapping" class="btn btn-ghost">정보 입력으로</button>
-          <button id="rs-btn-regenerate" class="btn btn-ghost">다시 생성</button>
+        <div class="flex justify-between items-center mt-4">
+          <button id="rs-btn-back-mapping" class="px-4 py-2 border border-gray-200 rounded-xl text-xs font-medium text-gray-500 hover:border-brand-400 hover:text-brand-600 transition-all">정보 입력으로</button>
+          <button id="rs-btn-regenerate" class="px-4 py-2 border border-gray-200 rounded-xl text-xs font-medium text-gray-500 hover:border-brand-400 hover:text-brand-600 transition-all">다시 생성</button>
         </div>
       </section>
     </div>
   </main>
 
-  <div id="toast" class="toast"></div>
+  <!-- Toast -->
+  <div id="toast" class="toast fixed bottom-6 left-1/2 -translate-x-1/2 translate-y-20 px-6 py-3 rounded-full bg-gray-900 text-white text-sm font-medium shadow-2xl z-50 pointer-events-none transition-transform duration-300"></div>
 
   <script src="js/emm-parser.js"></script>
   <script src="js/generator.js"></script>

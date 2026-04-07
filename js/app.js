@@ -288,7 +288,10 @@
     const info = $(`#${infoId}`);
     const nameEl = $(`#${nameId}`);
 
-    drop.addEventListener('click', () => input.click());
+    drop.addEventListener('click', (e) => {
+      if (e.target === input) return;
+      input.click();
+    });
     drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('dragover'); });
     drop.addEventListener('dragleave', () => drop.classList.remove('dragover'));
     drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('dragover'); if (e.dataTransfer.files[0]) parseFile(e.dataTransfer.files[0]); });
